@@ -48,14 +48,17 @@ function lineChart(el, cfg) {
       const lab = cfg.xFmt ? cfg.xFmt(cfg.dates[i]) : cfg.dates[i];
       svg += `<text x="${x(i)}" y="${H - 6}" text-anchor="${k === 0 ? "start" : k === ticks - 1 ? "end" : "middle"}">${lab}</text>`;
     }
-    (cfg.markers || []).forEach((mk, j) => {
-      const i = cfg.dates.findIndex((d) => d >= mk.date);
-      if (i < 0) return;
-      const xx = x(i);
+    // Numbered markers; the numbers match Section 4. Labels are nudged sideways where events cluster.
+    const mks = (cfg.markers || []).map((mk, j) => ({ n: j + 1, i: cfg.dates.findIndex((d) => d >= mk.date) })).filter((mk) => mk.i >= 0);
+    const lx = mks.map((mk) => x(mk.i));
+    for (let k = 1; k < lx.length; k++) lx[k] = Math.max(lx[k], lx[k - 1] + 16);
+    for (let k = lx.length - 1; k >= 0; k--) lx[k] = Math.min(lx[k], k === lx.length - 1 ? W - 7 : lx[k + 1] - 16);
+    mks.forEach((mk, k) => {
+      const xx = x(mk.i);
       svg += `<line class="marker" x1="${xx}" x2="${xx}" y1="${m.t - 2}" y2="${H - m.b}"/>`;
-      // Numbered markers; the numbers match §4. Labels would collide where events cluster.
-      svg += `<circle cx="${xx}" cy="${m.t - 9}" r="7" fill="${css("--paper")}" stroke="${css("--accent")}"/>`;
-      svg += `<text class="marker-label" x="${xx}" y="${m.t - 5.5}" text-anchor="middle">${j + 1}</text>`;
+      if (Math.abs(lx[k] - xx) > 1) svg += `<line class="marker" x1="${lx[k]}" x2="${xx}" y1="${m.t - 2}" y2="${m.t + 4}"/>`;
+      svg += `<rect x="${lx[k] - 7}" y="${m.t - 16}" width="14" height="14" fill="${css("--accent")}"/>`;
+      svg += `<text class="marker-label" x="${lx[k]}" y="${m.t - 5.5}" text-anchor="middle">${mk.n}</text>`;
     });
     cfg.series.forEach((s) => {
       let d = "";
@@ -99,7 +102,7 @@ const monthFmt = (d) => new Date(d + (d.length === 7 ? "-01" : "") + "T12:00:00Z
   const [R, L] = await Promise.all([getJSON("data/research.json"), getJSON("data/live.json")]);
 
   if (R) {
-    const li = (x) => `<li>${x.ticker} <span>· ${x.why.split(";")[0]}</span></li>`;
+    const li = (x) => `<li>${x.ticker} <span>${x.why.split(";")[0]}</span></li>`;
     document.getElementById("long-list").innerHTML = R.legs.long.map(li).join("");
     document.getElementById("short-list").innerHTML = R.legs.short.map(li).join("");
 
@@ -145,14 +148,14 @@ const monthFmt = (d) => new Date(d + (d.length === 7 ? "-01" : "") + "T12:00:00Z
       { name: "All prices (CPI)", values: P.cpi, color: "--bench", width: 1.6 },
     ];
     lineChart(document.getElementById("chart-power"), { dates: P.dates, series: powerSeries, base: 100, xFmt: monthFmt });
-    legend(document.getElementById("legend-power"), powerSeries.map((s) => ({ ...s, name: s.name + " · Jan 2021 = 100" })));
+    legend(document.getElementById("legend-power"), powerSeries);
 
     document.getElementById("election").innerHTML =
       `<tr><th>Session</th><th>Long</th><th>Short</th><th>Spread</th><th>QQQ</th></tr>` +
       R.election.map((e) => `<tr><td>${fmtDate(e.date)}</td><td class="l">${pct(e.long)}</td><td class="s">${pct(e.short)}</td><td><b class="${sign(e.spread)}">${pct(e.spread)}</b></td><td>${pct(e.qqq)}</td></tr>`).join("");
 
     document.getElementById("timeline").innerHTML = R.events.map((e, i) =>
-      `<li><time><span class="n">${i + 1}</span>${fmtDate(e.date)} · ${e.label}</time><p>${e.text} <a href="${e.url}" rel="noopener">Source</a></p></li>`).join("");
+      `<li><span class="n">${i + 1}</span><time>${fmtDate(e.date)} · ${e.label}</time><p>${e.text} <a href="${e.url}" rel="noopener">Source</a></p></li>`).join("");
   }
 
   if (L) {
@@ -171,8 +174,7 @@ const monthFmt = (d) => new Date(d + (d.length === 7 ? "-01" : "") + "T12:00:00Z
       { name: "QQQ", values: L.qqq, color: "--bench", dash: "4 3" },
     ];
     if (sessions < 2) {
-      document.getElementById("chart-live").style.display = "none";
-      document.getElementById("legend-live").style.display = "none";
+      document.getElementById("live-fig").hidden = true;
       set("live-note", `Tracking runs from the ${fmtDate(L.inception)} close. The chart appears after the second session. Price source: ${L.source}.`);
     } else {
       set("live-note", `Indexed to 100 at the ${fmtDate(L.inception)} close. Price source: ${L.source}.`);
