@@ -1,0 +1,43 @@
+name: Thesis tracker
+
+on:
+  # The course server pushes price_history.json after every NYSE close.
+  push:
+    branches: [main]
+    paths: [price_history.json, thesis/config.json, thesis/track.py, thesis/common.py]
+  # Backstop if the server push does not arrive: 22:30 UTC Mon-Fri (after the US close in both DST regimes).
+  schedule:
+    - cron: "30 22 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: thesis-tracker
+  cancel-in-progress: false
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install lseg-data pandas numpy
+      - name: Update live spread
+        run: python thesis/track.py
+        env:
+          LSEG_APP_KEY: ${{ secrets.LSEG_APP_KEY }}
+          LSEG_USERNAME: ${{ secrets.LSEG_USER }}
+          LSEG_PASSWORD: ${{ secrets.LSEG_PASS }}
+      - name: Commit if changed
+        run: |
+          git config user.name "thesis-tracker"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/live.json
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "Update live spread $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push

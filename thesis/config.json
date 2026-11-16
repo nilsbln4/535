@@ -1,0 +1,72 @@
+{
+  "name": "Built Beats Building",
+  "inception": "2026-11-16",
+  "benchmark": {
+    "ticker": "QQQ",
+    "ric": "QQQ.O",
+    "ib_conid": null
+  },
+  "long": [
+    {
+      "ticker": "MSFT",
+      "ric": "MSFT.O",
+      "ib_conid": null,
+      "why": "hyperscaler"
+    },
+    {
+      "ticker": "AMZN",
+      "ric": "AMZN.O",
+      "ib_conid": 3691937,
+      "why": "hyperscaler"
+    },
+    {
+      "ticker": "GOOGL",
+      "ric": "GOOGL.O",
+      "ib_conid": null,
+      "why": "hyperscaler"
+    },
+    {
+      "ticker": "EQIX",
+      "ric": "EQIX.O",
+      "ib_conid": null,
+      "why": "data-center landlord"
+    },
+    {
+      "ticker": "DLR",
+      "ric": "DLR.N",
+      "ib_conid": null,
+      "why": "data-center landlord"
+    }
+  ],
+  "short": [
+    {
+      "ticker": "CRWV",
+      "ric": "CRWV.O",
+      "ib_conid": null,
+      "why": "GPU cloud"
+    },
+    {
+      "ticker": "NBIS",
+      "ric": "NBIS.O",
+      "ib_conid": null,
+      "why": "GPU cloud"
+    },
+    {
+      "ticker": "IREN",
+      "ric": "IREN.O",
+      "ib_conid": null,
+      "why": "GPU cloud"
+    },
+    {
+      "ticker": "APLD",
+      "ric": "APLD.O",
+      "ib_conid": null,
+      "why": "data-center developer"
+    }
+  ],
+  "hedge": {
+    "method": "beta-neutral to QQQ",
+    "lookback_sessions": 60,
+    "rebalance": "first session of each month"
+  }
+}

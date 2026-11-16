@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Built Beats Building</title>
+<meta name="description" content="A tracked investment thesis: when new AI data centers get harder to build, capacity that already exists gains value and the companies that must build or borrow lose.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+
+<header class="masthead">
+  <p class="kicker">Fintech 535 · Thesis tracker · Inception <span data-f="inception">16 Nov 2026</span></p>
+  <h1>Built beats building.</h1>
+  <p class="lede">When new AI data centers get harder to build, the capacity that already exists becomes more valuable, and the companies that still have to build it, with borrowed money, lose.</p>
+  <div class="ticker-strip" id="strip">
+    <div><span class="lab">Spread since inception</span><span class="num" data-f="live-total">–</span></div>
+    <div><span class="lab">Sessions tracked</span><span class="num" data-f="live-days">–</span></div>
+    <div><span class="lab">Short $ per $1 long</span><span class="num" data-f="hedge">–</span></div>
+    <div><span class="lab">Last update</span><span class="num small" data-f="updated">–</span></div>
+  </div>
+</header>
+
+<section id="thesis">
+  <h2><span class="sec">§1</span>Thesis</h2>
+  <p>AI demand has not slowed. What has changed is the cost of adding capacity. Local voters, state moratoria and tariffs that make data centers pay for their own grid upgrades all raise the price of each new megawatt. Barclays calls it a shift from a race to a "war of attrition," where scarce power favours the largest balance sheets. Two groups come out of this differently:</p>
+  <div class="legs">
+    <div class="leg long">
+      <h3>Long · already built</h3>
+      <p>Hyperscalers and data-center landlords with energized capacity. Their capex is a fraction of revenue and their interest bill is small.</p>
+      <ul id="long-list"></ul>
+    </div>
+    <div class="leg short">
+      <h3>Short · still building</h3>
+      <p>GPU clouds and developers whose growth depends on new sites funded with debt. Capex is several times revenue, and interest takes up to a quarter of it.</p>
+      <ul id="short-list"></ul>
+    </div>
+  </div>
+  <p>The position is <strong>beta-neutral</strong>: the short basket is sized so that both sides move the same amount with the Nasdaq-100. It is a bet on the gap between the two groups, not on AI stocks going up or down.</p>
+
+  <div class="two-col">
+    <div>
+      <h3 class="mini">Predictions</h3>
+      <ol class="tight">
+        <li>The spread is positive over 6 and 12 months from inception.</li>
+        <li>It rises on news that restricts new data centers and falls on news that overrides local rules.</li>
+        <li>Its return is not explained by the market: beta to QQQ stays near zero.</li>
+      </ol>
+    </div>
+    <div>
+      <h3 class="mini">Wrong if</h3>
+      <ol class="tight">
+        <li>The spread falls 15% from its high since inception.</li>
+        <li>The short basket beats the long basket by 25 points since inception.</li>
+        <li>Federal rules override local and state data-center limits.</li>
+        <li>GPU clouds refinance cheaply, for example high-yield notes well below 10%.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="live">
+  <h2><span class="sec">§2</span>Live</h2>
+  <p class="note" data-f="live-note"></p>
+  <div class="chart" id="chart-live" aria-label="Spread since inception"></div>
+  <div class="legend" id="legend-live"></div>
+  <table class="kill" id="kill"></table>
+</section>
+
+<section id="numbers">
+  <h2><span class="sec">§3</span>The numbers</h2>
+
+  <h3>The trade turned in June</h3>
+  <p>The same beta-neutral spread, run on past data from <span data-f="bt-from"></span>. It lost while the market paid for anything that promised more capacity, then turned around the time the first state rules arrived. The short basket peaked on <span data-f="peak"></span> (shaded from there). Numbered markers are the events in §4.</p>
+  <div class="chart tall" id="chart-regime" aria-label="Spread before inception, with events"></div>
+  <table class="data" id="regimes"></table>
+  <p class="caption">Splitting the history at the short basket's peak is chosen with hindsight, so this describes the past rather than testing the thesis. The test is §2. Before inception: annualised volatility <span data-f="bt-vol"></span>, worst drawdown <span data-f="bt-dd"></span>, beta to QQQ <span data-f="bt-beta"></span>.</p>
+
+  <h3>Who has to build, and who has to borrow</h3>
+  <p>Capex relative to revenue shows how much of the business still has to be built. Interest relative to revenue shows how much of the business goes to lenders. Capex separates the two baskets completely; interest separates every name except IREN, whose interest bill is still small next to the capex it is funding.</p>
+  <table class="data fund" id="fund"></table>
+  <p class="caption">Capex: last twelve months. Interest and revenue growth: latest reported quarter against the same quarter a year earlier. Source: LSEG. The shorts are growing much faster, and that growth is the risk to this thesis if it can still be financed.</p>
+
+  <h3>Why politics turned: the power bill</h3>
+  <p>Since January 2021 electricity prices have risen faster than prices overall. That gap is what voters punished in November, and it is what tariffs that make data centers pay for their own grid upgrades are designed to close.</p>
+  <div class="chart" id="chart-power" aria-label="Electricity CPI against all-items CPI"></div>
+  <div class="legend" id="legend-power"></div>
+
+  <h3>The election, two sessions</h3>
+  <table class="data" id="election"></table>
+  <p class="caption">Day one rewarded what is already built. On day two everything fell, and the hedged spread was flat: the market was pricing a risk to AI as a whole, not yet the split.</p>
+</section>
+
+<section id="events">
+  <h2><span class="sec">§4</span>What changed</h2>
+  <ol class="timeline" id="timeline"></ol>
+  <blockquote>"Bipartisan but local, making the buildout pricier rather than stalling it."<cite>Dominique Toublan, Barclays, November 2026</cite></blockquote>
+</section>
+
+<section id="method">
+  <h2><span class="sec">§5</span>Method</h2>
+  <dl class="method">
+    <dt>Baskets</dt><dd>Equal weight within each side, rebalanced daily. Price returns, before dividends.</dd>
+    <dt>Hedge</dt><dd>Short dollars per $1 long = beta of the long basket ÷ beta of the short basket, both against QQQ over the previous 60 sessions. Set at inception, then on the first session of each month, using only data from before that day.</dd>
+    <dt>Not modelled</dt><dd>Stock borrow fees, financing and commissions. Borrow on heavily shorted GPU-cloud stocks can be expensive, so the live spread overstates what a real short would earn.</dd>
+    <dt>Data</dt><dd>Prices: daily bars from the course server (Interactive Brokers) with LSEG as the fallback. Fundamentals: LSEG. Electricity and CPI: FRED. Only basket-level indices and ratios are published, never raw vendor prices.</dd>
+    <dt>Pipeline</dt><dd>The course server pushes daily bars to this repository. A GitHub Action recomputes the live spread after every push and every weekday evening, then commits the result. This page reads it.</dd>
+  </dl>
+  <p class="foot">Not investment advice. Code and data in <a href="https://github.com/nilsbln4/535">the repository</a>. Evidence last rebuilt <span data-f="built"></span>.</p>
+</section>
+
+</main>
+<script src="app.js"></script>
+</body>
+</html>
