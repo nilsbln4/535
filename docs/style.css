@@ -181,3 +181,7 @@ dl.method dt { font-weight: 700; color: var(--navy); }
 .scroll { overflow-x: auto; }
 table.grid td { white-space: nowrap; }
 table.grid td.base { outline: 2px solid var(--blue); outline-offset: -2px; background: var(--blue-lt) !important; }
+table.data tr.used td { background: var(--blue-lt) !important; font-weight: 600; }
+#rebal td, #rebal th { white-space: nowrap; }
+#rebal { font-size: 13px; }
+#rebal th, #rebal td { padding-left: 6px; padding-right: 6px; }

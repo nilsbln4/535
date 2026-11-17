@@ -86,6 +86,25 @@
       5,
       10,
       20
-    ]
+    ],
+    "cases": {
+      "low": [
+        0.02,
+        5
+      ],
+      "base": [
+        0.05,
+        10
+      ],
+      "high": [
+        0.2,
+        20
+      ]
+    }
+  },
+  "rebalance": {
+    "frequency": "monthly",
+    "drift_band": 0.3,
+    "note": "Weights and hedge reset on the first session of each month, and whenever the short side drifts more than 30% from its target size."
   }
 }

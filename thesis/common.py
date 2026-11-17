@@ -102,21 +102,56 @@ def yahoo_closes(start):
     return pd.DataFrame(cols).sort_index()
 
 
-def daily_costs(px, h, borrow=0.0, exec_bps=0.0):
-    """Cost per $1 long for each session in h.index, as a return to subtract from the spread.
+REBALANCE = CONFIG.get("rebalance", {"frequency": "monthly", "drift_band": 0.30})
 
-    Constant notional ($1 long, $h short), rebalanced to equal weight every day. Turnover is what it
-    takes to restore the target weights after the day's moves, plus any change in the hedge ratio.
-    The first session also pays to open the whole book (1 + h). Exit is not charged.
-    Borrow is an annual fee on the short notional, charged daily (/252).
+
+def rebalance_days(index, freq):
+    """True on the first session of each period. The position for that session is set at the prior close."""
+    idx = pd.DatetimeIndex(index)
+    key = {"daily": idx, "weekly": idx.to_period("W"), "monthly": idx.to_period("M"),
+           "quarterly": idx.to_period("Q")}[freq]
+    first = ~pd.Index(key).duplicated()
+    first[0] = True
+    return first
+
+
+def simulate(px, h, longs=None, shorts=None, freq=None, band=None, borrow=0.0, exec_bps=0.0):
+    """Holdings-level book: $1 of equity long, $h short, equal weight within each side.
+
+    Rebalanced (weights and hedge reset to target) on the first session of each `freq` period, and
+    also whenever the short side has drifted more than `band` from its target size. Between
+    rebalances the positions drift with prices. Session t's position is set at the close of t-1
+    using h[t], which only uses data through t-1. The first session opens the book.
+
+    Costs: `exec_bps` on every dollar traded; `borrow` is an annual fee on the short notional,
+    charged daily (/252). Returns per-session: ret (net of the given costs), cost, turnover,
+    and the long and short legs' own returns at their drifted weights.
     """
-    r = px.pct_change(fill_method=None).reindex(h.index)
-    tl = (r[LONG].abs() / len(LONG)).sum(axis=1)
-    held = h.shift(1).to_numpy()[:, None] / len(SHORT) * (1 + r[SHORT].to_numpy())
-    ts = pd.Series(np.nansum(np.abs(held - h.to_numpy()[:, None] / len(SHORT)), axis=1), index=h.index)
-    turnover = tl + ts
-    turnover.iloc[0] = 1 + h.iloc[0]
-    return turnover * exec_bps / 1e4 + borrow / 252 * h, turnover
+    longs, shorts = longs or LONG, shorts or SHORT
+    freq = freq or REBALANCE["frequency"]
+    band = REBALANCE["drift_band"] if band is None else band
+    r = px.pct_change(fill_method=None).reindex(h.index).fillna(0.0)
+    rL, rS, hv = r[longs].to_numpy(), r[shorts].to_numpy(), h.to_numpy()
+    reb = rebalance_days(h.index, freq)
+    nL, nS = len(longs), len(shorts)
+    V, pL, pS = 1.0, np.zeros(nL), np.zeros(nS)
+    out = np.zeros((len(h), 6))
+    for t in range(len(h)):
+        cost = turn = 0.0
+        drift = t > 0 and band is not False and abs(pS.sum() / (hv[t] * V) - 1) > band
+        if reb[t] or drift:
+            tL, tS = np.full(nL, V / nL), np.full(nS, hv[t] * V / nS)
+            turn = np.abs(tL - pL).sum() + np.abs(tS - pS).sum()
+            pL, pS = tL, tS
+            cost += exec_bps / 1e4 * turn
+        cost += borrow / 252 * pS.sum()
+        legL, legS = pL @ rL[t] / pL.sum(), pS @ rS[t] / pS.sum()
+        pnl = pL @ rL[t] - pS @ rS[t]
+        pL, pS = pL * (1 + rL[t]), pS * (1 + rS[t])
+        Vn = V + pnl - cost
+        out[t] = (Vn / V - 1, cost / V, turn / V, legL, legS, float(reb[t] or drift))
+        V = Vn
+    return pd.DataFrame(out, index=h.index, columns=["ret", "cost", "turnover", "long", "short", "rebalanced"])
 
 
 def ib_closes():

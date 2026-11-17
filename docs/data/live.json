@@ -1,17 +1,25 @@
 {
- "updated": "2026-11-17 16:26 UTC",
+ "updated": "2026-11-17 16:48 UTC",
  "source": "Yahoo Finance (public fallback)",
  "inception": "2026-11-13",
  "hedge_at_inception": 0.2522,
  "hedge_now": 0.2522,
  "beta_long_at_inception": 0.7241,
  "intraday": true,
- "as_of": "2026-11-17 11:26 ET",
+ "as_of": "2026-11-17 11:48 ET",
+ "rebalance": {
+  "frequency": "monthly",
+  "drift_band": 0.3,
+  "note": "Weights and hedge reset on the first session of each month, and whenever the short side drifts more than 30% from its target size."
+ },
+ "rebalance_dates": [
+  "2026-11-16"
+ ],
  "costs": {
   "borrow": 0.05,
   "exec_bps": 10,
-  "paid": 0.001373918501271282,
-  "turnover": 1.273839136191917
+  "paid": 0.0013483238991156435,
+  "turnover": 1.2522
  },
  "dates": [
   "2026-11-13",
@@ -21,49 +29,49 @@
  "spread": [
   100.0,
   99.98,
-  99.03
+  98.85
  ],
  "spread_net": [
   100.0,
   99.85,
-  98.89
+  98.72
  ],
  "long": [
   100.0,
   97.95,
-  96.43
+  96.22
  ],
  "short": [
   100.0,
   91.96,
-  89.75
+  89.57
  ],
  "qqq": [
   100.0,
   97.33,
-  96.03
+  95.8
  ],
  "long_qqq": [
   100.0,
   99.88,
-  99.29
+  99.26
  ],
  "stats": {
-  "total": -0.0097361983000962,
-  "vol": 0.10505359966629706,
-  "max_dd": -0.009548463333335255,
+  "total": -0.011485789009421876,
+  "vol": 0.124696429867319,
+  "max_dd": -0.011298385731401961,
   "days": 2
  },
  "kill": [
   {
    "name": "Spread drawdown from its high since inception",
-   "value": -0.009700000000000042,
+   "value": -0.011500000000000066,
    "limit": -0.15,
    "tripped": false
   },
   {
    "name": "Short basket minus long basket since inception",
-   "value": -0.06680000000000007,
+   "value": -0.06650000000000006,
    "limit": 0.25,
    "tripped": false
   }

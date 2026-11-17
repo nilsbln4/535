@@ -127,8 +127,24 @@ const monthFmt = (d) => new Date(d + (d.length === 7 ? "-01" : "") + "T12:00:00Z
         <td class="l">${pct(g.long, 0)}</td><td class="s">${pct(g.short, 0)}</td>
         <td><b class="${sign(g.spread)}">${pct(g.spread, 1)}</b></td><td class="${sign(g.spread_net)}">${pct(g.spread_net, 1)}</td><td>${pct(g.qqq, 0)}</td></tr>`).join("");
 
+    if (R.rebalance_compare) {
+      const RC = R.rebalance_compare, by = (n) => RC.find((x) => x.name === n) || {};
+      set("bt-from3", fmtDate(R.spread_stats.from));
+      set("daily-turn", (by("Daily").turnover_per_year || 0).toFixed(0));
+      set("q-gross", pct(by("Quarterly").gross, 0));
+      set("q-dd", pct(by("Quarterly").max_dd, 0));
+      const b = (x, d = 1) => `<b class="${sign(x)}">${pct(x, d)}</b>`;
+      document.getElementById("rebal").innerHTML =
+        `<tr><th>Rule</th><th>Trades / yr</th><th>Turnover</th><th>Gross</th><th>Net low</th><th>Net base</th><th>Net high</th><th>Jun–Nov net</th><th>Worst DD</th></tr>` +
+        RC.map((x) => `<tr${x.used ? ' class="used"' : ""}><td>${x.name}${x.used ? ' <span class="caption">(used)</span>' : ""}</td>
+          <td>${x.rebalances_per_year.toFixed(0)}</td><td>${x.turnover_per_year.toFixed(1)}×</td>
+          <td>${b(x.gross)}</td><td class="${sign(x.net_low)}">${pct(x.net_low, 1)}</td><td>${b(x.net_base)}</td><td class="${sign(x.net_high)}">${pct(x.net_high, 1)}</td>
+          <td class="${sign(x.post_net_base)}">${pct(x.post_net_base, 1)}</td><td>${pct(x.max_dd, 0)}</td></tr>`).join("");
+    }
+
     if (R.costs) {
       const C = R.costs, S = R.spread_stats;
+      if (C.rebalances_per_year) set("rebal-n", C.rebalances_per_year.toFixed(0));
       set("turnover", C.turnover_per_year.toFixed(1));
       set("avg-hedge", "$" + C.avg_hedge.toFixed(2));
       set("bt-from2", fmtDate(S.from));

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 
@@ -58,7 +58,7 @@
       </div>
       <p>The position is <strong>beta-neutral</strong>. The shorts move roughly four times as much as the longs with the Nasdaq-100 (beta about 2.9 against 0.7), so the short side is sized at about <strong>$0.25 per $1 long</strong>. That ratio is not fixed: it is re-measured from the last 60 sessions on the first trading day of each month. An equal-dollar version would really be a bet on AI stocks falling; on past data it lost 88%.</p>
       <p class="formula"><span>Spread return</span> = average return of the 5 longs − <i>h</i> × average return of the 4 shorts, &nbsp;<i>h</i> = β<sub>long</sub> ÷ β<sub>short</sub> ≈ 0.25</p>
-      <p>Example: QQQ falls 1%. The longs fall about 0.7% and the shorts about 2.9%, so the spread is −0.7% + 0.25 × 2.9% ≈ 0. A market move alone does nothing. The spread moves only when the two groups pull apart.</p>
+      <p>Example: QQQ falls 1%. The longs fall about 0.7% and the shorts about 2.9%, so the spread is −0.7% + 0.25 × 2.9% ≈ 0. A market move alone does nothing. The spread moves only when the two groups pull apart. The book is reset to these weights once a month (see Section 3, "How often to rebalance"); in between, positions drift with prices, so the formula holds approximately.</p>
 
       <h3>The bigger picture: GDP, debt and tax revenue</h3>
       <div class="cards3">
@@ -125,16 +125,23 @@
       <table class="data" id="regimes"></table>
       <p class="source">The split at the short basket's peak is chosen with hindsight, so this describes the past rather than testing the thesis; the test is Section 2. Before inception: annualised volatility <span data-f="bt-vol"></span>, worst drawdown <span data-f="bt-dd"></span>, beta to QQQ <span data-f="bt-beta"></span>.</p>
 
+      <h3>How often to rebalance</h3>
+      <p>Equal weights and a beta-neutral hedge are targets; prices push the book away from them every day. Resetting daily keeps it on target but trades about <span data-f="daily-turn"></span>× the position a year, which is unrealistic with borrow and trading costs. This book is rebalanced on the first trading day of each month, when the hedge ratio is reset anyway, and in between only if the short side drifts more than 30% from its target size. That comes to about <span data-f="rebal-n"></span> rebalances a year and turnover of about <span data-f="turnover"></span>× a year.</p>
+      <p class="fig-title">Table 3 · The same trade under different rebalancing rules, <span data-f="bt-from3"></span> to inception</p>
+      <div class="scroll"><table class="data" id="rebal"></table></div>
+      <p class="source">Same baskets, hedge ratios and dates; only the rebalancing rule changes. Holdings drift with prices between rebalances. Net columns: low = 2% borrow and 5 bps execution; base = 5% and 10 bps; high = 20% and 20 bps. Trades / yr: rebalances per year. Turnover: dollars traded per year per $1 of capital. Beta to QQQ stays between −0.13 and −0.03 under every rule. Highlighted: the rule used for the live book and every other figure on this page.</p>
+      <p>Two lessons. First, the gaps between daily, weekly and monthly come from the particular path prices took; they are not a reason to prefer one rule. What changes reliably is turnover, and so cost. Second, rebalancing rarely is dangerous on the short side of this trade. When the GPU clouds rallied, the short positions grew with them, and with only quarterly resets the book ended up far more short than beta-neutral: <span data-f="q-gross"></span>, with a worst drawdown of <span data-f="q-dd"></span>. The drift band prevents that at little cost.</p>
+
       <h3>After costs</h3>
-      <p>The spreads above are gross. Two costs come off: the fee for borrowing the shorted stocks, and the cost of trading (commission, half the bid-ask spread, market impact). Rebalancing to equal weight every day and resetting the hedge monthly trades about <span data-f="turnover"></span>× the long position per year, and the short side averaged <span data-f="avg-hedge"></span> per $1 long, so borrow fees apply to a fairly small notional. Actual borrow rates for these names are not public and change daily, so the table shows a range.</p>
-      <p class="fig-title">Table 3 · Spread net of costs, <span data-f="bt-from2"></span> to inception, and running cost per year</p>
+      <p>The spreads above are gross. Two costs come off: the fee for borrowing the shorted stocks, and the cost of trading (commission, half the bid-ask spread, market impact). With the monthly rule, trading costs are small; the short side averaged <span data-f="avg-hedge"></span> per $1 long, so borrow is most of the cost. Actual borrow rates for these names are not public and change daily, so the table shows a range.</p>
+      <p class="fig-title">Table 4 · Spread net of costs, <span data-f="bt-from2"></span> to inception, and running cost per year</p>
       <div class="scroll"><table class="data grid" id="costs"></table></div>
       <p class="source">Each cell: total spread return net of costs over the whole period (gross <span data-f="bt-gross"></span>), and below it the running cost in percentage points per year. Highlighted: the base case used for the live net figure. Excludes financing of the long side and dividends.</p>
-      <p>Costs matter for the full history, where the gross edge was small: at the base case they turn <span data-f="bt-gross"></span> into <span data-f="bt-net"></span>. They matter much less for the move the thesis is about: from June to inception the spread made <span data-f="r2-gross"></span> gross and <span data-f="r2-net"></span> net. With borrow at 20% a year, costs would take about 6–7 points a year, which a real short would have to beat.</p>
+      <p>Costs matter for the full history, where the gross edge was small: at the base case they turn <span data-f="bt-gross"></span> into <span data-f="bt-net"></span>. They matter much less for the move the thesis is about: from June to inception the spread made <span data-f="r2-gross"></span> gross and <span data-f="r2-net"></span> net. With borrow at 20% a year, costs would take about 6 points a year, which a real short would have to beat.</p>
 
       <h3>Who has to build, and who has to borrow</h3>
       <p>Capex relative to revenue shows how much of the business still has to be built; interest relative to revenue shows how much goes to lenders. Capex separates the two baskets completely. Interest separates every name except IREN, whose interest bill is still small next to the capex it is funding.</p>
-      <p class="fig-title">Table 4 · Capex, interest and growth</p>
+      <p class="fig-title">Table 5 · Capex, interest and growth</p>
       <table class="data fund" id="fund"></table>
       <p class="source">Source: LSEG. Capex: last twelve months. Interest and revenue growth: latest reported quarter against the same quarter a year earlier. The shorts are growing much faster, and that growth is the risk to this thesis if it can still be financed.</p>
 
@@ -146,7 +153,7 @@
       <p class="source">Source: FRED (BLS series CUSR0000SEHF01, CPIAUCSL).</p>
 
       <h3>The election, two sessions</h3>
-      <p class="fig-title">Table 5 · Returns around the 2026 midterms</p>
+      <p class="fig-title">Table 6 · Returns around the 2026 midterms</p>
       <table class="data" id="election"></table>
       <p class="source">Day one rewarded what is already built. On day two everything fell and the hedged spread was flat: the market was pricing a risk to AI as a whole, not yet the split.</p>
     </section>
@@ -170,7 +177,7 @@
         <li><strong>Collateral:</strong> the maximum loss is held as margin, so the risk is known when the trade is opened.</li>
       </ul>
 
-      <p class="fig-title">Table 6 · Profit at expiry per share-equivalent, stock at $100 today</p>
+      <p class="fig-title">Table 7 · Profit at expiry per share-equivalent, stock at $100 today</p>
       <table class="data" id="bcs">
         <tr><th>Stock at expiry</th><th>Short 1 share</th><th>Sell 5 × 110/130 call spreads</th></tr>
         <tr><td>$50 (−50%)</td><td>+$50.0</td><td>+$23.5</td></tr>
@@ -205,14 +212,14 @@
 
       <h3>B · Long only, hedged with QQQ</h3>
       <p>Buy the five long names and short QQQ against them at the long basket's beta (about $0.73 of QQQ per $1 long, reset monthly the same way). No single-stock shorts, so no borrow fees and no squeeze risk, and anyone with a brokerage account can run it. What it gives up is the half of the bet on the GPU clouds failing: it only says what is already built beats the market.</p>
-      <p class="fig-title">Table 7 · Main trade against the long-only version, before inception (gross)</p>
+      <p class="fig-title">Table 8 · Main trade against the long-only version, before inception (gross)</p>
       <table class="data" id="alt-lq"></table>
       <p class="source">Source: LSEG; author calculations. Same baskets, hedge method and dates as Section 3. The long-only version is also tracked live from inception in the data file behind this page.</p>
       <p>On past data, the long-only version earned much less after June, but it also did not lose while the market paid for building. Its volatility was about 60% of the main trade's and its worst drawdown about half. Over the whole period it actually came out ahead. The short leg is what drove both the losses before June and the gains after: it is the higher-conviction, higher-risk half of the thesis.</p>
 
       <h3>C · Credit: bet on the borrowing, not the stock</h3>
       <p>The thesis is ultimately about who can borrow and at what price, and Barclays' Toublan is a credit strategist. The most direct version is in the bond market: own the debt of the companies that have already built, and bet against the debt of the companies that still have to borrow. In practice that means buying hyperscaler bonds against selling CoreWeave's high-yield notes short, or buying default protection (credit default swaps) on CoreWeave where available.</p>
-      <p class="fig-title">Table 8 · What it costs to borrow, by credit tier</p>
+      <p class="fig-title">Table 9 · What it costs to borrow, by credit tier</p>
       <table class="data" id="credit"></table>
       <p class="source">Source: ICE BofA effective yield indices via FRED (<span data-f="credit-date"></span>); CoreWeave 2032 notes from <a href="https://finance.yahoo.com/markets/stocks/articles/banks-raced-fund-neoclouds-coreweave-020300823.html" rel="noopener">Yahoo Finance / TheStreet</a>, Nov 2026. Microsoft is rated AAA, Amazon and Alphabet AA.</p>
       <p>Borrowing got more expensive for everyone over the year, but the tiers moved apart: the cost of the weakest credit rose about four times as much as the strongest. CoreWeave now borrows at close to CCC levels while the hyperscalers borrow near 5–6%. The trade pays if that gap widens. It also ties to the fourth "wrong if" test: if GPU clouds can refinance well below 10%, the thesis is in trouble. The catch is access: individual bonds and credit default swaps are mostly institutional products, so this is how a credit fund would express the view rather than a retail account.</p>
@@ -221,7 +228,7 @@
     <section id="method">
       <h2><span class="sec">6</span>Methodology</h2>
       <dl class="method">
-        <dt>Baskets</dt><dd>Equal weight within each side, rebalanced daily. Price returns, before dividends.</dd>
+        <dt>Baskets</dt><dd>Equal weight within each side. Weights and hedge are reset on the first session of each month, and in between whenever the short side drifts more than 30% from its target size; positions drift with prices otherwise. Price returns, before dividends.</dd>
         <dt>Hedge</dt><dd>Short dollars per $1 long = beta of the long basket ÷ beta of the short basket, both against QQQ over the previous 60 sessions. Set at inception, then on the first session of each month, using only data from before that day.</dd>
         <dt>Costs</dt><dd>Gross and net figures are both shown. Net subtracts a borrow fee on the short notional (base case 5% a year, charged daily) and an execution cost on every dollar traded (base case 10 bps), including opening the position. Section 3 shows borrow from 0% to 20% and execution from 0 to 20 bps.</dd>
         <dt>Not modelled</dt><dd>Financing of the long side, interest on short-sale proceeds, dividends, and the cost of closing the position.</dd>
@@ -248,7 +255,7 @@
       <table class="summary">
         <tr><td>Long</td><td>MSFT, AMZN, GOOGL, EQIX, DLR</td></tr>
         <tr><td>Short</td><td>CRWV, NBIS, IREN, APLD</td></tr>
-        <tr><td>Weighting</td><td>Equal, daily</td></tr>
+        <tr><td>Weighting</td><td>Equal; rebalanced monthly + 30% drift band</td></tr>
         <tr><td>Hedge</td><td>Beta-neutral to QQQ, 60-day, reset monthly</td></tr>
         <tr><td>Alternatives</td><td>Bear call spreads; long-only vs QQQ; credit</td></tr>
         <tr><td>Horizon</td><td>6–12 months</td></tr>
@@ -270,6 +277,6 @@
   <footer class="foot">Not investment advice. Code and data in <a href="https://github.com/nilsbln4/535">the repository</a>. Evidence last rebuilt <span data-f="built"></span>.</footer>
 </div>
 
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>

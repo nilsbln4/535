@@ -12,9 +12,8 @@ from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
 
-from common import (ALL, BENCH, CONFIG, DATA_DIR, ann_stats, basket_returns, hedge_ratios,
-                    daily_costs, ib_closes, lseg_closes, open_lseg, spread_returns, to_index, write_json,
-                    yahoo_closes)
+from common import (ALL, BENCH, CONFIG, DATA_DIR, REBALANCE, ann_stats, basket_returns, hedge_ratios,
+                    ib_closes, lseg_closes, open_lseg, simulate, to_index, write_json, yahoo_closes)
 
 INCEPTION = pd.Timestamp(CONFIG["inception"])
 LOOKBACK = CONFIG["hedge"]["lookback_sessions"]
@@ -92,16 +91,20 @@ def main():
     b[roll] = b_monthly[roll]
     b = b.ffill()
 
+    # Holdings-level book from the inception close, with the configured rebalance rule
+    # (monthly + drift band). The first live session pays to open the book.
     live = slice(INCEPTION + pd.Timedelta(days=1), None)
-    spr = spread_returns(rl[live], rs[live], h[live])
+    book = simulate(px, h[live])
+    book_net = simulate(px, h[live], borrow=COSTS["borrow_base"], exec_bps=COSTS["exec_bps_base"])
+    lq = simulate(px, b[live], shorts=[BENCH])["ret"]
+    spr = book["ret"]
     dates = [str(INCEPTION.date())] + [str(d.date()) for d in spr.index]
     idx = lambda r: [100.0] + [round(x, 2) for x in to_index(r.loc[spr.index])]
 
-    cost, turnover = daily_costs(px.loc[spr.index[0]:], h.loc[spr.index], COSTS["borrow_base"], COSTS["exec_bps_base"])
     s_index = idx(spr)
-    net_index = idx(spr - cost)
-    lq_index = idx(rl - b * rb)
-    l_index, sh_index, q_index = idx(rl), idx(rs), idx(rb)
+    net_index = idx(book_net["ret"])
+    lq_index = idx(lq)
+    l_index, sh_index, q_index = idx(book["long"]), idx(book["short"]), idx(rb)
     peak = max(s_index)
     dd = s_index[-1] / peak - 1
     outrun = (sh_index[-1] - l_index[-1]) / 100
@@ -115,8 +118,10 @@ def main():
         "beta_long_at_inception": round(float(b0), 4),
         "intraday": intraday,
         "as_of": now_ny.strftime("%Y-%m-%d %H:%M ET"),
+        "rebalance": REBALANCE,
+        "rebalance_dates": [str(d.date()) for d in book.index[book["rebalanced"] > 0]],
         "costs": {"borrow": COSTS["borrow_base"], "exec_bps": COSTS["exec_bps_base"],
-                  "paid": float(cost.sum()), "turnover": float(turnover.sum())},
+                  "paid": float(book_net["cost"].sum()), "turnover": float(book["turnover"].sum())},
         "dates": dates,
         "spread": s_index, "spread_net": net_index, "long": l_index, "short": sh_index, "qqq": q_index, "long_qqq": lq_index,
         "stats": ann_stats(spr),

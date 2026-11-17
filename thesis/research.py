@@ -13,8 +13,8 @@ from datetime import date
 import numpy as np
 import pandas as pd
 
-from common import (BENCH, CONFIG, LONG, SHORT, TICKER, ann_stats, basket_returns, daily_costs, hedge_ratios,
-                    lseg_closes, open_lseg, spread_returns, to_index, write_json)
+from common import (BENCH, CONFIG, LONG, REBALANCE, SHORT, TICKER, ann_stats, basket_returns, hedge_ratios,
+                    lseg_closes, open_lseg, simulate, spread_returns, to_index, write_json)
 
 START_PRICES = "2025-01-02"
 START_SPREAD = "2025-07-01"  # first month with 60 sessions of CRWV history (IPO 2025-03-28)
@@ -93,35 +93,58 @@ def main():
     lb = CONFIG["hedge"]["lookback_sessions"]
     rl, rs, rb = basket_returns(px)
     h, bl, bs = hedge_ratios(rl, rs, rb, lb)
-    win = slice(START_SPREAD, None)
-    spr = spread_returns(rl[win], rs[win], h[win])
-    # Long-only alternative: the same long basket, hedged with QQQ at its own beta (same monthly reset).
-    lq = spread_returns(rl[win], rb[win], bl[win]).reindex(spr.index)
-    rl, rs, rb, h = rl.loc[spr.index], rs.loc[spr.index], rb.loc[spr.index], h.loc[spr.index]
-
-    # Costs: base case for the headline net numbers, plus a grid of borrow fee x execution cost.
+    h, bl = h.loc[START_SPREAD:].dropna(), bl.loc[START_SPREAD:].dropna()
     C = CONFIG["costs"]
-    cost_base, turnover = daily_costs(px, h, C["borrow_base"], C["exec_bps_base"])
-    net = spr - cost_base
+    yr = lambda s: float(s.iloc[1:].mean() * 252)  # per year, excluding the opening trade
+
+    # Main book: holdings-level, with the configured rebalance rule. Gross = no costs.
+    book = simulate(px, h)
+    book_net = simulate(px, h, borrow=C["borrow_base"], exec_bps=C["exec_bps_base"])
+    spr, net = book["ret"], book_net["ret"]
+    rl, rs, rb = book["long"], book["short"], rb.loc[spr.index]
+    # Long-only alternative: the same long basket, hedged with QQQ at its own beta, same rule.
+    lq = simulate(px, bl, shorts=[BENCH])["ret"]
+
+    # Cost grid (borrow fee x execution) for the main book.
     grid_total, grid_drag = [], []
     for bfee in C["borrow_grid"]:
         rt, rd = [], []
         for eb in C["exec_bps_grid"]:
-            c, _ = daily_costs(px, h, bfee, eb)
-            rt.append(float((1 + spr - c).prod() - 1))
-            rd.append(float(c.iloc[1:].mean() * 252))  # running cost per year, excluding the entry trade
+            g = simulate(px, h, borrow=bfee, exec_bps=eb)
+            rt.append(float((1 + g["ret"]).prod() - 1))
+            rd.append(yr(g["cost"]))
         grid_total.append(rt)
         grid_drag.append(rd)
 
-    s_idx = to_index(rs)
-    peak = s_idx.idxmax()
+    # Short-basket peak, from the plain equal-weight basket (descriptive, not a trading rule).
+    peak = to_index(basket_returns(px)[1].loc[spr.index]).idxmax()
+    pre, post = slice(None, peak), slice(peak + pd.Timedelta(days=1), None)
+    tot = lambda r: float((1 + r).prod() - 1)
+
+    # Rebalance-frequency comparison: same baskets, hedge and dates; only the rebalance rule changes.
+    rules = [("Daily", "daily", False), ("Weekly", "weekly", False), ("Monthly", "monthly", False),
+             ("Monthly + 30% drift band", "monthly", 0.30), ("Quarterly", "quarterly", False),
+             ("Quarterly + 30% drift band", "quarterly", 0.30)]
+    freq_rows = []
+    for name, f, band in rules:
+        g = simulate(px, h, freq=f, band=band)
+        cases = {k: simulate(px, h, freq=f, band=band, borrow=v[0], exec_bps=v[1]) for k, v in C["cases"].items()}
+        q = rb.loc[g.index]
+        freq_rows.append({
+            "name": name, "used": f == REBALANCE["frequency"] and band == REBALANCE["drift_band"],
+            "gross": tot(g["ret"]), **{f"net_{k}": tot(v["ret"]) for k, v in cases.items()},
+            "pre_gross": tot(g["ret"].loc[pre]), "post_gross": tot(g["ret"].loc[post]),
+            "post_net_base": tot(cases["base"]["ret"].loc[post]),
+            "turnover_per_year": yr(g["turnover"]), "cost_per_year_base": yr(cases["base"]["cost"]),
+            "rebalances_per_year": yr(g["rebalanced"]),
+            "vol": float(g["ret"].std() * np.sqrt(252)), "beta_qqq": float(np.cov(g["ret"], q)[0, 1] / q.var()),
+            "max_dd": ann_stats(g["ret"])["max_dd"]})
     regimes = []
     for name, a, b in [("Build everything", spr.index[0], peak), ("Built beats building", peak + pd.Timedelta(days=1), spr.index[-1])]:
         sl = slice(a, b)
-        tot = lambda r: float((1 + r.loc[sl]).prod() - 1)
         regimes.append({"name": name, "from": str(a.date()), "to": str(b.date()),
-                        "long": tot(rl), "short": tot(rs), "spread": tot(spr), "qqq": tot(rb),
-                        "long_qqq": tot(lq), "spread_net": tot(net)})
+                        **{k: tot(v.loc[sl]) for k, v in
+                           {"long": rl, "short": rs, "spread": spr, "qqq": rb, "long_qqq": lq, "spread_net": net}.items()}})
 
     beta = float(np.cov(spr, rb)[0, 1] / rb.var())
     election = []
@@ -147,7 +170,9 @@ def main():
         "legs": {side: [{"ticker": x["ticker"], "why": x["why"]} for x in CONFIG[side]] for side in ("long", "short")},
         "spread": {"dates": [str(x.date()) for x in spr.index],
                    "index": [round(x, 2) for x in to_index(spr)],
-                   "hedge": [round(x, 3) for x in h]},
+                   "hedge": [round(x, 3) for x in h.loc[spr.index]]},
+        "rebalance": REBALANCE,
+        "rebalance_compare": freq_rows,
         "spread_stats": {**ann_stats(spr), "beta_qqq": beta, "from": str(spr.index[0].date())},
         "long_qqq": {"index": [round(x, 2) for x in to_index(lq)],
                      "stats": {**ann_stats(lq), "beta_qqq": float(np.cov(lq, rb)[0, 1] / rb.var())}},
@@ -155,7 +180,9 @@ def main():
         "costs": {"borrow_base": C["borrow_base"], "exec_bps_base": C["exec_bps_base"],
                   "borrow_grid": C["borrow_grid"], "exec_bps_grid": C["exec_bps_grid"],
                   "net_total": grid_total, "drag_per_year": grid_drag,
-                  "turnover_per_year": float(turnover.iloc[1:].mean() * 252),
+                  "cases": C["cases"],
+                  "turnover_per_year": yr(book["turnover"]),
+                  "rebalances_per_year": yr(book["rebalanced"]),
                   "avg_hedge": float(h.mean()), "net_index": [round(x, 2) for x in to_index(net)],
                   "net_stats": ann_stats(net)},
         "short_peak": str(peak.date()),
