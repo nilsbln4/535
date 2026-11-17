@@ -1,8 +1,8 @@
 {
- "updated": "2026-11-16 21:22 UTC",
- "source": "LSEG",
+ "updated": "2026-11-17 15:32 UTC",
+ "source": "Yahoo Finance (public fallback)",
  "inception": "2026-11-16",
- "hedge_at_inception": null,
+ "hedge_at_inception": 0.2537,
  "hedge_now": 0.2537,
  "dates": [
   "2026-11-16"
