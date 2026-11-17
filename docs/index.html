@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 
@@ -34,6 +34,13 @@
       <p>When new AI data centers get harder to build, the capacity that already exists becomes more valuable, and the companies that still have to build it, with borrowed money, lose.</p>
     </div>
 
+    <div class="plain">
+      <p class="mini-h">In plain language</p>
+      <p>For two years the market paid for anyone who promised more AI computing capacity. The demand is still there. What has changed is the cost of meeting it. Towns are voting data centers down because they push up power bills and employ few people. States are pausing permits (New York) or making data centers pay for their own grid upgrades (Pennsylvania). Interest rates are staying high, so borrowed money costs more.</p>
+      <p>When building gets harder, a data center that is already built and connected to power is worth more. Microsoft, Amazon, Google, Equinix and Digital Realty already own that capacity and pay for growth out of revenue. CoreWeave, Nebius, IREN and Applied Digital are valued on capacity they have not built yet, funded with debt that costs up to 16%.</p>
+      <p>We buy the first group and short the second, sized so that an ordinary market move cancels out. The trade makes money if the gap between the two groups widens, whether AI stocks as a whole go up or down.</p>
+    </div>
+
     <section id="thesis">
       <h2><span class="sec">1</span>Thesis</h2>
       <p>AI demand has not slowed. What has changed is the cost of adding capacity. Local voters, state moratoria and tariffs that make data centers pay for their own grid upgrades all raise the price of each new megawatt. Barclays calls it a shift from a race to a "war of attrition," where scarce power favours the largest balance sheets. Two groups come out of this differently:</p>
@@ -49,7 +56,25 @@
           <ul id="short-list"></ul>
         </div>
       </div>
-      <p>The position is <strong>beta-neutral</strong>: the short basket is sized so that both sides move the same amount with the Nasdaq-100. It is a bet on the gap between the two groups, not on AI stocks going up or down.</p>
+      <p>The position is <strong>beta-neutral</strong>. The shorts move roughly four times as much as the longs with the Nasdaq-100 (beta about 2.9 against 0.7), so the short side is sized at about <strong>$0.25 per $1 long</strong>. That ratio is not fixed: it is re-measured from the last 60 sessions on the first trading day of each month. An equal-dollar version would really be a bet on AI stocks falling; on past data it lost 88%.</p>
+      <p class="formula"><span>Spread return</span> = average return of the 5 longs − <i>h</i> × average return of the 4 shorts, &nbsp;<i>h</i> = β<sub>long</sub> ÷ β<sub>short</sub> ≈ 0.25</p>
+      <p>Example: QQQ falls 1%. The longs fall about 0.7% and the shorts about 2.9%, so the spread is −0.7% + 0.25 × 2.9% ≈ 0. A market move alone does nothing. The spread moves only when the two groups pull apart.</p>
+
+      <h3>The bigger picture: GDP, debt and tax revenue</h3>
+      <div class="cards3">
+        <div class="card">
+          <h4>GDP</h4>
+          <p>The US needs growth to stay ahead of its debt, and the AI buildout is a large part of current growth. This thesis does not bet against that growth. It bets on who captures it: the companies that can keep building when building gets expensive.</p>
+        </div>
+        <div class="card">
+          <h4>Debt</h4>
+          <p>Heavy federal borrowing helps keep rates higher for longer, and the buildout itself is increasingly debt-funded. CoreWeave's 2032 notes yield above 16%; interest already takes 23% of revenue at CoreWeave and Applied Digital. Equinix and Digital Realty carry debt too, so the long side has less rate risk but not none.</p>
+        </div>
+        <div class="card">
+          <h4>Tax revenue</h4>
+          <p>Towns courted data centers for property tax. But data centers employ few people and push up local power bills: electricity prices are up 43% since 2021 against 28% for all prices. Voters decided the tax money was not worth it and rejected data centers in 40 of 41 local ballot measures in November.</p>
+        </div>
+      </div>
 
       <div class="two-col">
         <div class="box">
@@ -119,16 +144,62 @@
     <section id="events">
       <h2><span class="sec">4</span>Catalysts to date</h2>
       <ol class="timeline" id="timeline"></ol>
-      <blockquote>"Bipartisan but local, making the buildout pricier rather than stalling it."<cite>Dominique Toublan, Barclays, November 2026</cite></blockquote>
+      <blockquote>"AI pushback is bipartisan but local, making the buildout pricier rather than stalling it. The AI race shifts from a prisoner's dilemma to a war of attrition: scarce power favors the biggest balance sheets."<cite>Dominique Toublan, head of US credit strategy, Barclays, note of 4 Nov 2026, the day after the midterms</cite></blockquote>
+      <p class="source">Context: until now each company had to build as fast as possible because its rivals were (the prisoner's dilemma). With power and permits as the constraint, the winner is whoever can last longest and pay most. The next session, the GPU clouds fell hardest: IREN −17%, Nebius −15%, CoreWeave −10%, against Microsoft −3.6% (CNBC).</p>
+    </section>
+
+    <section id="alternatives">
+      <h2><span class="sec">5</span>Another way to implement it</h2>
+      <p>Shorting these stocks is expensive and risky. Borrow fees are high, and stocks with about 100% annualised volatility can jump sharply on a single headline. A <strong>bear call spread</strong> expresses the same view on the short side with a known maximum loss and no borrow fee.</p>
+
+      <h3>Bear call spread on each short name</h3>
+      <ul class="tight-ul">
+        <li><strong>Structure:</strong> sell a call about 10% above the stock price and buy a call about 30% above, both about five weeks out. Repeat each month.</li>
+        <li><strong>Sizing:</strong> the spread's delta replaces the stock short. A 110/130 spread has a delta of about 0.20, so about 5 spreads give the same starting market exposure as shorting 1 share. Re-size at each roll, as the hedge ratio does.</li>
+        <li><strong>Collateral:</strong> the maximum loss is held as margin, so the risk is known when the trade is opened.</li>
+      </ul>
+
+      <p class="fig-title">Table 5 · Profit at expiry per share-equivalent, stock at $100 today</p>
+      <table class="data" id="bcs">
+        <tr><th>Stock at expiry</th><th>Short 1 share</th><th>Sell 5 × 110/130 call spreads</th></tr>
+        <tr><td>$50 (−50%)</td><td>+$50.0</td><td>+$23.5</td></tr>
+        <tr><td>$90 (−10%)</td><td>+$10.0</td><td>+$23.5</td></tr>
+        <tr><td>$100 (flat)</td><td>$0.0</td><td>+$23.5</td></tr>
+        <tr><td>$110 (+10%)</td><td>−$10.0</td><td>+$23.5</td></tr>
+        <tr><td>$120 (+20%)</td><td>−$20.0</td><td>−$26.5</td></tr>
+        <tr><td>$130 (+30%)</td><td>−$30.0</td><td>−$76.5</td></tr>
+        <tr><td>$200 (+100%)</td><td>−$100.0</td><td>−$76.5</td></tr>
+      </table>
+      <p class="source">Black-Scholes, 35 days, 100% implied volatility, 4% rate: the 110 call is worth $8.66 and the 130 call $3.95, so each spread collects $4.70 and can lose at most $15.30. Break-even is $114.70. Illustrative prices, not quotes. Excludes borrow fees on the short stock, which make the stock short worse than shown.</p>
+
+      <div class="two-col">
+        <div class="box">
+          <h4>Better than shorting when</h4>
+          <ol class="tight">
+            <li>The stocks stall rather than crash. The spread earns its full premium if the stock goes nowhere.</li>
+            <li>A squeeze hits. Losses stop at a known amount instead of growing without limit.</li>
+            <li>Borrow is expensive or unavailable.</li>
+          </ol>
+        </div>
+        <div class="box">
+          <h4>Worse when</h4>
+          <ol class="tight">
+            <li>The thesis plays out fully and a stock collapses. The spread keeps only its premium.</li>
+            <li>The stock rises 15–50%. At the same starting exposure, the spread loses more than the short stock in that range.</li>
+            <li>Its exposure drifts as the stock moves, so it needs more re-sizing than a share short.</li>
+          </ol>
+        </div>
+      </div>
+      <p>The view behind the spread is slightly different: the shorts fail to rally, rather than the shorts fall. That fits the Barclays line, which describes a buildout made pricier, not stopped. The live tracker in Section 2 uses the stock short because it measures the thesis most directly.</p>
     </section>
 
     <section id="method">
-      <h2><span class="sec">5</span>Methodology</h2>
+      <h2><span class="sec">6</span>Methodology</h2>
       <dl class="method">
         <dt>Baskets</dt><dd>Equal weight within each side, rebalanced daily. Price returns, before dividends.</dd>
         <dt>Hedge</dt><dd>Short dollars per $1 long = beta of the long basket ÷ beta of the short basket, both against QQQ over the previous 60 sessions. Set at inception, then on the first session of each month, using only data from before that day.</dd>
         <dt>Not modelled</dt><dd>Stock borrow fees, financing and commissions. Borrow on heavily shorted GPU-cloud stocks can be expensive, so the live spread overstates what a real short would earn.</dd>
-        <dt>Data</dt><dd>Prices: daily bars from the course server (Interactive Brokers) with LSEG as the fallback. Fundamentals: LSEG. Electricity and CPI: FRED. Only basket-level indices and ratios are published, never raw vendor prices.</dd>
+        <dt>Data</dt><dd>Prices: daily bars from the course server (Interactive Brokers), with LSEG and then Yahoo Finance as fallbacks (Yahoo matches LSEG closes to within 0.001%). Fundamentals: LSEG. Electricity and CPI: FRED. Only basket-level indices and ratios are published, never raw vendor prices.</dd>
         <dt>Pipeline</dt><dd>The course server pushes daily bars to this repository. A GitHub Action recomputes the live spread after every push and every weekday evening, then commits the result. This page reads it.</dd>
       </dl>
     </section>
@@ -151,7 +222,8 @@
         <tr><td>Long</td><td>MSFT, AMZN, GOOGL, EQIX, DLR</td></tr>
         <tr><td>Short</td><td>CRWV, NBIS, IREN, APLD</td></tr>
         <tr><td>Weighting</td><td>Equal, daily</td></tr>
-        <tr><td>Hedge</td><td>Beta-neutral to QQQ, 60-day, monthly</td></tr>
+        <tr><td>Hedge</td><td>Beta-neutral to QQQ, 60-day, reset monthly</td></tr>
+        <tr><td>Alternative</td><td>Bear call spreads on the shorts</td></tr>
         <tr><td>Horizon</td><td>6–12 months</td></tr>
         <tr><td>Stop</td><td>−15% from high</td></tr>
       </table>
@@ -162,7 +234,8 @@
       <a href="#live">2 Live performance</a>
       <a href="#numbers">3 Supporting data</a>
       <a href="#events">4 Catalysts to date</a>
-      <a href="#method">5 Methodology</a>
+      <a href="#alternatives">5 Another way to implement it</a>
+      <a href="#method">6 Methodology</a>
     </nav>
   </aside>
   </div>

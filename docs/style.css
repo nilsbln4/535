@@ -70,6 +70,18 @@ table.summary td:first-child { color: var(--muted); width: 74px; white-space: no
 .callout-h { margin: 0 0 4px !important; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--blue); }
 .callout p { margin: 0; font-size: 19px; line-height: 1.45; color: var(--navy); }
 
+.plain { margin-top: 18px; padding: 2px 0 0 22px; border-left: 4px solid var(--rule); }
+.plain p { font-size: 16px; }
+.mini-h { margin: 0 0 6px !important; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--blue); }
+.formula { background: var(--fill); padding: 10px 14px; font-size: 15px; border-left: 3px solid var(--navy); }
+.formula span { font-weight: 700; color: var(--navy); }
+.cards3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 10px 0 4px; }
+.card { border: 1px solid var(--rule); border-top: 3px solid var(--blue); padding: 10px 14px 4px; }
+.card h4 { margin: 0 0 6px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--blue); }
+.card p { font-size: 14px; }
+ul.tight-ul { margin: 0 0 12px; padding-left: 20px; font-size: 15px; }
+ul.tight-ul li { margin-bottom: 4px; }
+
 /* sections */
 section { padding-top: 34px; scroll-margin-top: 12px; }
 h2 { margin: 0 0 14px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); font-size: 22px; font-weight: 700; color: var(--navy); }
@@ -90,7 +102,7 @@ p { margin: 0 0 12px; }
 .leg li:nth-child(even) { background: var(--fill); }
 .leg li span { font-weight: 400; color: var(--muted); }
 
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 18px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 18px 0 16px; }
 .box { border-top: 3px solid var(--blue); background: var(--fill); padding: 10px 14px 12px; }
 .box h4 { margin: 0 0 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--blue); }
 ol.tight { margin: 0; padding-left: 20px; font-size: 14px; }
@@ -154,7 +166,8 @@ dl.method dt { font-weight: 700; color: var(--navy); }
 @media (max-width: 640px) {
   .tb-right { display: none; }
   aside { grid-template-columns: 1fr; }
-  .legs, .two-col { grid-template-columns: 1fr; }
+  .legs, .two-col, .cards3 { grid-template-columns: 1fr; }
+  .plain { padding-left: 14px; }
   dl.method { grid-template-columns: 1fr; }
   dl.method dt { border-bottom: 0; padding-bottom: 0; }
   table { font-size: 12px; }
