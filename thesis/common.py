@@ -77,6 +77,35 @@ def lseg_closes(ld, start, end=None):
     return px.sort_index()
 
 
+def yahoo_closes(start):
+    """Public fallback: Yahoo chart API, unadjusted daily closes (same basis as LSEG TRDPRC_1).
+
+    Needs no credentials, so the tracker keeps running when LSEG access is unavailable.
+    Returns an empty frame if any leg can't be fetched, so a partial basket is never used.
+    """
+    import urllib.request
+    p1 = int(pd.Timestamp(start, tz="UTC").timestamp())
+    p2 = int(pd.Timestamp.now(tz="UTC").timestamp()) + 86400
+    now_ny = pd.Timestamp.now(tz="America/New_York")
+    cols = {}
+    for ric in ALL:
+        url = (f"https://query1.finance.yahoo.com/v8/finance/chart/{TICKER[ric]}"
+               f"?period1={p1}&period2={p2}&interval=1d")
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            res = json.loads(urllib.request.urlopen(req, timeout=30).read())["chart"]["result"][0]
+            days = pd.to_datetime(res["timestamp"], unit="s", utc=True).tz_convert("America/New_York").normalize().tz_localize(None)
+            s = pd.Series(res["indicators"]["quote"][0]["close"], index=days, dtype=float)
+        except Exception as e:
+            print(f"yahoo {TICKER[ric]} failed: {type(e).__name__}")
+            return pd.DataFrame()
+        # Drop today's bar until the close is final.
+        if now_ny.hour < 17 and len(s) and s.index[-1] == now_ny.normalize().tz_localize(None):
+            s = s.iloc[:-1]
+        cols[ric] = s[~s.index.duplicated(keep="last")]
+    return pd.DataFrame(cols).sort_index()
+
+
 def ib_closes():
     """Prices pushed by the course server (IB daily bars) into price_history.json, keyed by IB conId."""
     path = ROOT / "price_history.json"

@@ -2,8 +2,9 @@
 
 Price source, in order:
   1. price_history.json pushed by the course server (IB daily bars), if it covers every leg;
-  2. LSEG (platform session in GitHub Actions, Workspace desktop locally).
-If neither works, the previous live.json is left untouched and the run exits cleanly.
+  2. LSEG (platform session in GitHub Actions, Workspace desktop locally);
+  3. Yahoo Finance chart API (public, no credentials).
+If none works, the previous live.json is left untouched and the run exits cleanly.
 """
 import json
 from datetime import datetime, timezone
@@ -12,7 +13,8 @@ import numpy as np
 import pandas as pd
 
 from common import (ALL, BENCH, CONFIG, DATA_DIR, ann_stats, basket_returns, hedge_ratios,
-                    ib_closes, lseg_closes, open_lseg, spread_returns, to_index, write_json)
+                    ib_closes, lseg_closes, open_lseg, spread_returns, to_index, write_json,
+                    yahoo_closes)
 
 INCEPTION = pd.Timestamp(CONFIG["inception"])
 LOOKBACK = CONFIG["hedge"]["lookback_sessions"]
@@ -39,6 +41,12 @@ def get_prices():
             return px, "LSEG"
         finally:
             ld.close_session()
+    start = (INCEPTION - pd.Timedelta(days=130)).strftime("%Y-%m-%d")
+    px = yahoo_closes(start)
+    if not px.empty:
+        if not ib.empty:
+            px = ib.combine_first(px)
+        return px, "Yahoo Finance (public fallback)"
     return None, None
 
 

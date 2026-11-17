@@ -2,8 +2,8 @@
  "updated": "2026-11-16 21:22 UTC",
  "source": "LSEG",
  "inception": "2026-11-16",
- "hedge_at_inception": 0.2522,
- "hedge_now": 0.2522,
+ "hedge_at_inception": null,
+ "hedge_now": 0.2537,
  "dates": [
   "2026-11-16"
  ],
