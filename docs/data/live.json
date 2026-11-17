@@ -1,12 +1,12 @@
 {
- "updated": "2026-11-17 21:01 UTC",
- "source": "Yahoo Finance (public fallback)",
+ "updated": "2026-11-17 23:39 UTC",
+ "source": "LSEG",
  "inception": "2026-11-13",
  "hedge_at_inception": 0.2522,
  "hedge_now": 0.2522,
  "beta_long_at_inception": 0.7241,
- "intraday": true,
- "as_of": "2026-11-17 16:01 ET",
+ "intraday": false,
+ "as_of": "2026-11-17 18:39 ET",
  "rebalance": {
   "frequency": "monthly",
   "drift_band": 0.3,
@@ -18,7 +18,7 @@
  "costs": {
   "borrow": 0.05,
   "exec_bps": 10,
-  "paid": 0.0013483238991156435,
+  "paid": 0.001348323900234529,
   "turnover": 1.2522
  },
  "dates": [
@@ -29,7 +29,7 @@
  "spread": [
   100.0,
   99.98,
-  99.31
+  99.3
  ],
  "spread_net": [
   100.0,
@@ -54,18 +54,18 @@
  "long_qqq": [
   100.0,
   99.88,
-  99.32
+  99.31
  ],
  "stats": {
-  "total": -0.006938627335533187,
-  "vol": 0.07364499013304121,
-  "max_dd": -0.0067503620031351685,
+  "total": -0.0069663842831543255,
+  "vol": 0.07395642989235951,
+  "max_dd": -0.006778115765531556,
   "days": 2
  },
  "kill": [
   {
    "name": "Spread drawdown from its high since inception",
-   "value": -0.006900000000000017,
+   "value": -0.007000000000000006,
    "limit": -0.15,
    "tripped": false
   },
