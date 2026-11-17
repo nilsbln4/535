@@ -154,6 +154,28 @@ const monthFmt = (d) => new Date(d + (d.length === 7 ? "-01" : "") + "T12:00:00Z
       `<tr><th>Session</th><th>Long</th><th>Short</th><th>Spread</th><th>QQQ</th></tr>` +
       R.election.map((e) => `<tr><td>${fmtDate(e.date)}</td><td class="l">${pct(e.long)}</td><td class="s">${pct(e.short)}</td><td><b class="${sign(e.spread)}">${pct(e.spread)}</b></td><td>${pct(e.qqq)}</td></tr>`).join("");
 
+    if (R.long_qqq) {
+      const S = R.spread_stats, Q = R.long_qqq.stats, el = R.election.find((e) => e.date === "2026-11-04");
+      const row = (lab, a, b) => `<tr><td>${lab}</td><td>${a}</td><td>${b}</td></tr>`;
+      const b2 = (x, d = 1) => `<b class="${sign(x)}">${pct(x, d)}</b>`;
+      document.getElementById("alt-lq").innerHTML =
+        `<tr><th></th><th>Main: long vs short stocks</th><th>Long-only vs QQQ</th></tr>` +
+        rg.map((g) => row(`${g.name}<br><span class="caption">${fmtDate(g.from)} – ${fmtDate(g.to)}</span>`, b2(g.spread), b2(g.long_qqq))).join("") +
+        (el ? row("Election day, 4 Nov 2026", b2(el.spread), b2(el.long_qqq)) : "") +
+        row(`Whole period from ${fmtDate(S.from)}`, b2(S.total), b2(Q.total)) +
+        row("Annualised volatility", pctPlain(S.vol, 0), pctPlain(Q.vol, 0)) +
+        row("Worst drawdown", pct(S.max_dd, 0), pct(Q.max_dd, 0)) +
+        row("Beta to QQQ", S.beta_qqq.toFixed(2), Q.beta_qqq.toFixed(2));
+    }
+
+    if (R.credit) {
+      set("credit-date", fmtDate(R.credit.date));
+      const rows = R.credit.rows.map((c) => `<tr><td>${c.name}</td><td>${pctPlain(c.year_ago)}</td><td><b>${pctPlain(c.yield)}</b></td><td>${pct(c.yield - c.year_ago, 1).replace("%", " pts")}</td></tr>`);
+      rows.splice(3, 0, `<tr><td>CoreWeave 2032 notes</td><td>–</td><td><b class="neg">above 16%</b></td><td>–</td></tr>`);
+      document.getElementById("credit").innerHTML =
+        `<tr><th>Borrower</th><th>Yield a year ago</th><th>Yield now</th><th>Change</th></tr>` + rows.join("");
+    }
+
     document.getElementById("timeline").innerHTML = R.events.map((e, i) =>
       `<li><span class="n">${i + 1}</span><time>${fmtDate(e.date)} · ${e.label}</time><p>${e.text} <a href="${e.url}" rel="noopener">Source</a></p></li>`).join("");
   }

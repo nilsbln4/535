@@ -18,6 +18,13 @@ from common import (BENCH, CONFIG, LONG, SHORT, TICKER, ann_stats, basket_return
 
 START_PRICES = "2025-01-02"
 START_SPREAD = "2025-07-01"  # first month with 60 sessions of CRWV history (IPO 2025-03-28)
+END = pd.Timestamp(CONFIG["inception"])  # evidence stops at the inception close; after that is the live test
+
+# Effective yields (ICE BofA indices via FRED): what it costs each tier of borrower to fund itself.
+CREDIT = [("AA-rated corporates (Microsoft, Amazon, Alphabet tier)", "BAMLC0A2CAAEY"),
+          ("All investment-grade corporates", "BAMLC0A0CMEY"),
+          ("All high-yield corporates", "BAMLH0A0HYM2EY"),
+          ("CCC and below", "BAMLH0A3HYCEY")]
 
 # Dated, sourced events. Shown on the chart and in the timeline.
 EVENTS = [
@@ -78,7 +85,7 @@ def main():
     if ld is None:
         raise SystemExit("No LSEG session; research.json not rebuilt.")
     try:
-        px = lseg_closes(ld, START_PRICES)
+        px = lseg_closes(ld, START_PRICES, end=(END + pd.Timedelta(days=1)).strftime("%Y-%m-%d")).loc[:END]
         fund = fundamentals(ld)
     finally:
         ld.close_session()
@@ -88,6 +95,8 @@ def main():
     h, bl, bs = hedge_ratios(rl, rs, rb, lb)
     win = slice(START_SPREAD, None)
     spr = spread_returns(rl[win], rs[win], h[win])
+    # Long-only alternative: the same long basket, hedged with QQQ at its own beta (same monthly reset).
+    lq = spread_returns(rl[win], rb[win], bl[win]).reindex(spr.index)
     rl, rs, rb, h = rl.loc[spr.index], rs.loc[spr.index], rb.loc[spr.index], h.loc[spr.index]
 
     s_idx = to_index(rs)
@@ -97,14 +106,23 @@ def main():
         sl = slice(a, b)
         tot = lambda r: float((1 + r.loc[sl]).prod() - 1)
         regimes.append({"name": name, "from": str(a.date()), "to": str(b.date()),
-                        "long": tot(rl), "short": tot(rs), "spread": tot(spr), "qqq": tot(rb)})
+                        "long": tot(rl), "short": tot(rs), "spread": tot(spr), "qqq": tot(rb),
+                        "long_qqq": tot(lq)})
 
     beta = float(np.cov(spr, rb)[0, 1] / rb.var())
     election = []
     for d in ["2026-11-04", "2026-11-05"]:
         t = pd.Timestamp(d)
         if t in spr.index:
-            election.append({"date": d, "long": float(rl[t]), "short": float(rs[t]), "spread": float(spr[t]), "qqq": float(rb[t])})
+            election.append({"date": d, "long": float(rl[t]), "short": float(rs[t]), "spread": float(spr[t]),
+                             "qqq": float(rb[t]), "long_qqq": float(lq[t])})
+
+    credit = []
+    for name, sid in CREDIT:
+        y = fred(sid).loc[:END]
+        credit.append({"name": name, "series": sid, "yield": float(y.iloc[-1]) / 100,
+                       "year_ago": float(y.loc[:END - pd.Timedelta(days=365)].iloc[-1]) / 100})
+    credit_date = str(fred(CREDIT[0][1]).loc[:END].index[-1].date())
 
     elec, cpi = fred("CUSR0000SEHF01"), fred("CPIAUCSL")
     e = pd.DataFrame({"elec": elec, "cpi": cpi}).dropna().loc["2021-01-01":]
@@ -117,6 +135,9 @@ def main():
                    "index": [round(x, 2) for x in to_index(spr)],
                    "hedge": [round(x, 3) for x in h]},
         "spread_stats": {**ann_stats(spr), "beta_qqq": beta, "from": str(spr.index[0].date())},
+        "long_qqq": {"index": [round(x, 2) for x in to_index(lq)],
+                     "stats": {**ann_stats(lq), "beta_qqq": float(np.cov(lq, rb)[0, 1] / rb.var())}},
+        "credit": {"date": credit_date, "rows": credit},
         "short_peak": str(peak.date()),
         "regimes": regimes,
         "election": election,

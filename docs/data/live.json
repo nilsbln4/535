@@ -1,9 +1,10 @@
 {
- "updated": "2026-11-17 15:32 UTC",
+ "updated": "2026-11-17 16:07 UTC",
  "source": "Yahoo Finance (public fallback)",
  "inception": "2026-11-16",
  "hedge_at_inception": 0.2537,
  "hedge_now": 0.2537,
+ "beta_long_at_inception": 0.729,
  "dates": [
   "2026-11-16"
  ],
@@ -17,6 +18,9 @@
   100.0
  ],
  "qqq": [
+  100.0
+ ],
+ "long_qqq": [
   100.0
  ],
  "stats": {},

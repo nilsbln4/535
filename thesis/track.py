@@ -69,13 +69,20 @@ def main():
     if not np.isfinite(h0):
         raise SystemExit("not enough history before inception to set the hedge")
 
-    h_monthly, _, _ = hedge_ratios(rl, rs, rb, LOOKBACK)
+    # Long-only alternative (Section 5): long basket hedged with QQQ at the long basket's own beta.
+    kept_b = prev.get("beta_long_at_inception")
+    b0 = float(kept_b) if isinstance(kept_b, (int, float)) and np.isfinite(kept_b) else float(bl0)
+
+    h_monthly, b_monthly, _ = hedge_ratios(rl, rs, rb, LOOKBACK)
     after = rl.index > INCEPTION
     first_month_end = (INCEPTION + pd.offsets.MonthBegin(1))
     h = pd.Series(h0, index=rl.index)
     roll = after & (rl.index >= first_month_end)
     h[roll] = h_monthly[roll]
     h = h.ffill()
+    b = pd.Series(b0, index=rl.index)
+    b[roll] = b_monthly[roll]
+    b = b.ffill()
 
     live = slice(INCEPTION + pd.Timedelta(days=1), None)
     spr = spread_returns(rl[live], rs[live], h[live])
@@ -83,6 +90,7 @@ def main():
     idx = lambda r: [100.0] + [round(x, 2) for x in to_index(r.loc[spr.index])]
 
     s_index = idx(spr)
+    lq_index = idx(rl - b * rb)
     l_index, sh_index, q_index = idx(rl), idx(rs), idx(rb)
     peak = max(s_index)
     dd = s_index[-1] / peak - 1
@@ -94,8 +102,9 @@ def main():
         "inception": str(INCEPTION.date()),
         "hedge_at_inception": round(float(h0), 4),
         "hedge_now": round(float(h.iloc[-1]), 4),
+        "beta_long_at_inception": round(float(b0), 4),
         "dates": dates,
-        "spread": s_index, "long": l_index, "short": sh_index, "qqq": q_index,
+        "spread": s_index, "long": l_index, "short": sh_index, "qqq": q_index, "long_qqq": lq_index,
         "stats": ann_stats(spr),
         "kill": [
             {"name": "Spread drawdown from its high since inception", "value": dd,

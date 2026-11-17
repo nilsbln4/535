@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
@@ -149,10 +149,11 @@
     </section>
 
     <section id="alternatives">
-      <h2><span class="sec">5</span>Another way to implement it</h2>
-      <p>Shorting these stocks is expensive and risky. Borrow fees are high, and stocks with about 100% annualised volatility can jump sharply on a single headline. A <strong>bear call spread</strong> expresses the same view on the short side with a known maximum loss and no borrow fee.</p>
+      <h2><span class="sec">5</span>Other ways to implement it</h2>
+      <p>The same thesis can be acted on in different ways, each with different risks. The live tracker in Section 2 uses the stock long/short because it measures the thesis most directly. Three alternatives:</p>
 
-      <h3>Bear call spread on each short name</h3>
+      <h3>A · Bear call spreads instead of shorting</h3>
+      <p>Shorting these stocks is expensive and risky. Borrow fees are high, and stocks with about 100% annualised volatility can jump sharply on a single headline. A bear call spread expresses the same view on the short side with a known maximum loss and no borrow fee.</p>
       <ul class="tight-ul">
         <li><strong>Structure:</strong> sell a call about 10% above the stock price and buy a call about 30% above, both about five weeks out. Repeat each month.</li>
         <li><strong>Sizing:</strong> the spread's delta replaces the stock short. A 110/130 spread has a delta of about 0.20, so about 5 spreads give the same starting market exposure as shorting 1 share. Re-size at each roll, as the hedge ratio does.</li>
@@ -190,7 +191,21 @@
           </ol>
         </div>
       </div>
-      <p>The view behind the spread is slightly different: the shorts fail to rally, rather than the shorts fall. That fits the Barclays line, which describes a buildout made pricier, not stopped. The live tracker in Section 2 uses the stock short because it measures the thesis most directly.</p>
+      <p>The view behind the spread is slightly different: the shorts fail to rally, rather than the shorts fall. That fits the Barclays line, which describes a buildout made pricier, not stopped.</p>
+
+      <h3>B · Long only, hedged with QQQ</h3>
+      <p>Buy the five long names and short QQQ against them at the long basket's beta (about $0.73 of QQQ per $1 long, reset monthly the same way). No single-stock shorts, so no borrow fees and no squeeze risk, and anyone with a brokerage account can run it. What it gives up is the half of the bet on the GPU clouds failing: it only says what is already built beats the market.</p>
+      <p class="fig-title">Table 6 · Main trade against the long-only version, before inception</p>
+      <table class="data" id="alt-lq"></table>
+      <p class="source">Source: LSEG; author calculations. Same baskets, hedge method and dates as Section 3. The long-only version is also tracked live from inception in the data file behind this page.</p>
+      <p>On past data, the long-only version earned much less after June, but it also did not lose while the market paid for building. Its volatility was about 60% of the main trade's and its worst drawdown about half. Over the whole period it actually came out ahead. The short leg is what drove both the losses before June and the gains after: it is the higher-conviction, higher-risk half of the thesis.</p>
+
+      <h3>C · Credit: bet on the borrowing, not the stock</h3>
+      <p>The thesis is ultimately about who can borrow and at what price, and Barclays' Toublan is a credit strategist. The most direct version is in the bond market: own the debt of the companies that have already built, and bet against the debt of the companies that still have to borrow. In practice that means buying hyperscaler bonds against selling CoreWeave's high-yield notes short, or buying default protection (credit default swaps) on CoreWeave where available.</p>
+      <p class="fig-title">Table 7 · What it costs to borrow, by credit tier</p>
+      <table class="data" id="credit"></table>
+      <p class="source">Source: ICE BofA effective yield indices via FRED (<span data-f="credit-date"></span>); CoreWeave 2032 notes from <a href="https://finance.yahoo.com/markets/stocks/articles/banks-raced-fund-neoclouds-coreweave-020300823.html" rel="noopener">Yahoo Finance / TheStreet</a>, Nov 2026. Microsoft is rated AAA, Amazon and Alphabet AA.</p>
+      <p>Borrowing got more expensive for everyone over the year, but the tiers moved apart: the cost of the weakest credit rose about four times as much as the strongest. CoreWeave now borrows at close to CCC levels while the hyperscalers borrow near 5–6%. The trade pays if that gap widens. It also ties to the fourth "wrong if" test: if GPU clouds can refinance well below 10%, the thesis is in trouble. The catch is access: individual bonds and credit default swaps are mostly institutional products, so this is how a credit fund would express the view rather than a retail account.</p>
     </section>
 
     <section id="method">
@@ -223,7 +238,7 @@
         <tr><td>Short</td><td>CRWV, NBIS, IREN, APLD</td></tr>
         <tr><td>Weighting</td><td>Equal, daily</td></tr>
         <tr><td>Hedge</td><td>Beta-neutral to QQQ, 60-day, reset monthly</td></tr>
-        <tr><td>Alternative</td><td>Bear call spreads on the shorts</td></tr>
+        <tr><td>Alternatives</td><td>Bear call spreads; long-only vs QQQ; credit</td></tr>
         <tr><td>Horizon</td><td>6–12 months</td></tr>
         <tr><td>Stop</td><td>−15% from high</td></tr>
       </table>
@@ -234,7 +249,7 @@
       <a href="#live">2 Live performance</a>
       <a href="#numbers">3 Supporting data</a>
       <a href="#events">4 Catalysts to date</a>
-      <a href="#alternatives">5 Another way to implement it</a>
+      <a href="#alternatives">5 Other ways to implement it</a>
       <a href="#method">6 Methodology</a>
     </nav>
   </aside>
@@ -243,6 +258,6 @@
   <footer class="foot">Not investment advice. Code and data in <a href="https://github.com/nilsbln4/535">the repository</a>. Evidence last rebuilt <span data-f="built"></span>.</footer>
 </div>
 
-<script src="app.js?v=2"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>
