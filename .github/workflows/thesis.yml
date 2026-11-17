@@ -8,6 +8,8 @@ on:
   # Backstop if the server push does not arrive: 22:30 UTC Mon-Fri (after the US close in both DST regimes).
   schedule:
     - cron: "30 22 * * 1-5"
+  # Intraday refresh, hourly during the US session (14:45-20:45 UTC). GitHub may delay scheduled runs.
+    - cron: "45 14-20 * * 1-5"
   workflow_dispatch:
 
 permissions:
@@ -38,6 +40,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/data/live.json
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
-          git commit -m "Update live spread $(date -u +%Y-%m-%d)"
+          git commit -m "Update live spread $(date -u +%Y-%m-%dT%H:%MZ)"
           git pull --rebase origin main
           git push

@@ -13,11 +13,12 @@ import numpy as np
 import pandas as pd
 
 from common import (ALL, BENCH, CONFIG, DATA_DIR, ann_stats, basket_returns, hedge_ratios,
-                    ib_closes, lseg_closes, open_lseg, spread_returns, to_index, write_json,
+                    daily_costs, ib_closes, lseg_closes, open_lseg, spread_returns, to_index, write_json,
                     yahoo_closes)
 
 INCEPTION = pd.Timestamp(CONFIG["inception"])
 LOOKBACK = CONFIG["hedge"]["lookback_sessions"]
+COSTS = CONFIG["costs"]
 DRAWDOWN_LIMIT = -0.15      # kill criterion 1: spread down 15% from its high since inception
 SHORTS_OUTRUN_LIMIT = 0.25  # kill criterion 2: short basket beats long basket by 25 pts since inception
 
@@ -58,6 +59,13 @@ def main():
         return
 
     px = px[ALL].dropna(how="all")
+    # Today's bar during the session is a live price, not a close: keep it, but flag it.
+    now_ny = pd.Timestamp.now(tz="America/New_York")
+    today = now_ny.normalize().tz_localize(None)
+    minutes = now_ny.hour * 60 + now_ny.minute
+    if px.index[-1] == today and minutes < 9 * 60 + 30:
+        px = px.iloc[:-1]
+    intraday = bool(px.index[-1] == today and minutes < 16 * 60 + 15)
     rl, rs, rb = basket_returns(px)
 
     # Hedge at inception: trailing LOOKBACK sessions ending at the inception close.
@@ -89,7 +97,9 @@ def main():
     dates = [str(INCEPTION.date())] + [str(d.date()) for d in spr.index]
     idx = lambda r: [100.0] + [round(x, 2) for x in to_index(r.loc[spr.index])]
 
+    cost, turnover = daily_costs(px.loc[spr.index[0]:], h.loc[spr.index], COSTS["borrow_base"], COSTS["exec_bps_base"])
     s_index = idx(spr)
+    net_index = idx(spr - cost)
     lq_index = idx(rl - b * rb)
     l_index, sh_index, q_index = idx(rl), idx(rs), idx(rb)
     peak = max(s_index)
@@ -103,8 +113,12 @@ def main():
         "hedge_at_inception": round(float(h0), 4),
         "hedge_now": round(float(h.iloc[-1]), 4),
         "beta_long_at_inception": round(float(b0), 4),
+        "intraday": intraday,
+        "as_of": now_ny.strftime("%Y-%m-%d %H:%M ET"),
+        "costs": {"borrow": COSTS["borrow_base"], "exec_bps": COSTS["exec_bps_base"],
+                  "paid": float(cost.sum()), "turnover": float(turnover.sum())},
         "dates": dates,
-        "spread": s_index, "long": l_index, "short": sh_index, "qqq": q_index, "long_qqq": lq_index,
+        "spread": s_index, "spread_net": net_index, "long": l_index, "short": sh_index, "qqq": q_index, "long_qqq": lq_index,
         "stats": ann_stats(spr),
         "kill": [
             {"name": "Spread drawdown from its high since inception", "value": dd,

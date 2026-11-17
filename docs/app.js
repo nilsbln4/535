@@ -42,7 +42,7 @@ function lineChart(el, cfg) {
     }
     if (cfg.base != null) svg += `<line class="zero" x1="${m.l}" x2="${W - m.r}" y1="${y(cfg.base)}" y2="${y(cfg.base)}"/>`;
     // x ticks: first and last plus a few in between
-    const ticks = Math.max(2, Math.min(6, Math.floor(W / 130)));
+    const ticks = Math.min(n, Math.max(2, Math.min(6, Math.floor(W / 130))));
     for (let k = 0; k < ticks; k++) {
       const i = Math.round((k / (ticks - 1)) * (n - 1));
       const lab = cfg.xFmt ? cfg.xFmt(cfg.dates[i]) : cfg.dates[i];
@@ -122,10 +122,27 @@ const monthFmt = (d) => new Date(d + (d.length === 7 ? "-01" : "") + "T12:00:00Z
 
     const rg = R.regimes;
     document.getElementById("regimes").innerHTML =
-      `<tr><th>Period</th><th>Long</th><th>Short</th><th>Spread</th><th>QQQ</th></tr>` +
+      `<tr><th>Period</th><th>Long</th><th>Short</th><th>Spread</th><th>Net of costs</th><th>QQQ</th></tr>` +
       rg.map((g) => `<tr><td>${g.name}<br><span class="caption">${fmtDate(g.from)} – ${fmtDate(g.to)}</span></td>
         <td class="l">${pct(g.long, 0)}</td><td class="s">${pct(g.short, 0)}</td>
-        <td><b class="${sign(g.spread)}">${pct(g.spread, 1)}</b></td><td>${pct(g.qqq, 0)}</td></tr>`).join("");
+        <td><b class="${sign(g.spread)}">${pct(g.spread, 1)}</b></td><td class="${sign(g.spread_net)}">${pct(g.spread_net, 1)}</td><td>${pct(g.qqq, 0)}</td></tr>`).join("");
+
+    if (R.costs) {
+      const C = R.costs, S = R.spread_stats;
+      set("turnover", C.turnover_per_year.toFixed(1));
+      set("avg-hedge", "$" + C.avg_hedge.toFixed(2));
+      set("bt-from2", fmtDate(S.from));
+      set("bt-gross", pct(S.total, 1));
+      set("bt-net", pct(C.net_stats.total, 1));
+      set("r2-gross", pct(rg[1].spread, 1));
+      set("r2-net", pct(rg[1].spread_net, 1));
+      document.getElementById("costs").innerHTML =
+        `<tr><th>Borrow fee per year</th>${C.exec_bps_grid.map((e) => `<th>Execution ${e} bps</th>`).join("")}</tr>` +
+        C.borrow_grid.map((b, i) => `<tr><td>${pctPlain(b, 0)}</td>` + C.exec_bps_grid.map((e, j) => {
+          const base = b === C.borrow_base && e === C.exec_bps_base ? ' class="base"' : "";
+          return `<td${base}><b class="${sign(C.net_total[i][j])}">${pct(C.net_total[i][j], 1)}</b><br><span class="caption">${(C.drag_per_year[i][j] * 100).toFixed(1)} pts/yr</span></td>`;
+        }).join("") + "</tr>").join("");
+    }
 
     const F = R.fundamentals;
     const maxCap = Math.max(...F.map((f) => f.capex_to_revenue || 0));
@@ -188,9 +205,31 @@ const monthFmt = (d) => new Date(d + (d.length === 7 ? "-01" : "") + "T12:00:00Z
     set("live-days", String(sessions));
     const total = L.spread[L.spread.length - 1] / 100 - 1;
     set("live-total", sessions ? `<span class="${sign(total)}">${pct(total, 2)}</span>` : "0.00%");
+    if (L.spread_net) {
+      const net = L.spread_net[L.spread_net.length - 1] / 100 - 1;
+      set("live-net", sessions ? `<span class="${sign(net)}">${pct(net, 2)}</span>` : "0.00%");
+    }
+    if (L.intraday) {
+      set("live-days", `${sessions - 1} + today (intraday)`);
+      set("updated", `${L.as_of}, intraday`);
+    }
+
+    const dr = (a, i) => a[i] / a[i - 1] - 1;
+    const tot = (a) => a[a.length - 1] / 100 - 1;
+    const cols = [["Long", L.long, "l"], ["Short", L.short, "s"], ["QQQ", L.qqq, ""], ["Spread", L.spread, "b"], ["Net of costs", L.spread_net, ""]].filter((c) => c[1]);
+    const cell = (x, c) => (c === "b" ? `<td><b class="${sign(x)}">${pct(x, 2)}</b></td>` : `<td class="${c}">${pct(x, 2)}</td>`);
+    let rows = "";
+    for (let i = 1; i < L.dates.length; i++) {
+      const live = L.intraday && i === L.dates.length - 1;
+      rows += `<tr><td>${fmtDate(L.dates[i])}${live ? ` <span class="caption">intraday, ${L.as_of.slice(11)}</span>` : ""}</td>` +
+        cols.map(([, a, c]) => cell(dr(a, i), c)).join("") + "</tr>";
+    }
+    if (L.dates.length > 1) rows += `<tr class="split"><td>Since inception</td>` + cols.map(([, a, c]) => cell(tot(a), c)).join("") + "</tr>";
+    document.getElementById("daily").innerHTML = `<tr><th>Session</th>${cols.map((c) => `<th>${c[0]}</th>`).join("")}</tr>` + rows;
 
     const liveSeries = [
       { name: "Spread (beta-neutral)", values: L.spread, color: "--spread", width: 2.2 },
+      ...(L.spread_net ? [{ name: "Spread net of costs", values: L.spread_net, color: "--spread", width: 1.4, dash: "2 2" }] : []),
       { name: "Long basket", values: L.long, color: "--long" },
       { name: "Short basket", values: L.short, color: "--short" },
       { name: "QQQ", values: L.qqq, color: "--bench", dash: "4 3" },
@@ -199,7 +238,7 @@ const monthFmt = (d) => new Date(d + (d.length === 7 ? "-01" : "") + "T12:00:00Z
       document.getElementById("live-fig").hidden = true;
       set("live-note", `Tracking runs from the ${fmtDate(L.inception)} close. The chart appears after the second session. Price source: ${L.source}.`);
     } else {
-      set("live-note", `Indexed to 100 at the ${fmtDate(L.inception)} close. Price source: ${L.source}.`);
+      set("live-note", `Indexed to 100 at the ${fmtDate(L.inception)} close. ${L.intraday ? `The last point is a live price as of ${L.as_of}, not a close. ` : ""}Price source: ${L.source}. Updated hourly during the session and after the close.`);
       lineChart(document.getElementById("chart-live"), { dates: L.dates, series: liveSeries, base: 100, xFmt: (d) => d.slice(5) });
     }
     legend(document.getElementById("legend-live"), liveSeries);

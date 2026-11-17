@@ -86,7 +86,6 @@ def yahoo_closes(start):
     import urllib.request
     p1 = int(pd.Timestamp(start, tz="UTC").timestamp())
     p2 = int(pd.Timestamp.now(tz="UTC").timestamp()) + 86400
-    now_ny = pd.Timestamp.now(tz="America/New_York")
     cols = {}
     for ric in ALL:
         url = (f"https://query1.finance.yahoo.com/v8/finance/chart/{TICKER[ric]}"
@@ -99,11 +98,25 @@ def yahoo_closes(start):
         except Exception as e:
             print(f"yahoo {TICKER[ric]} failed: {type(e).__name__}")
             return pd.DataFrame()
-        # Drop today's bar until the close is final.
-        if now_ny.hour < 17 and len(s) and s.index[-1] == now_ny.normalize().tz_localize(None):
-            s = s.iloc[:-1]
         cols[ric] = s[~s.index.duplicated(keep="last")]
     return pd.DataFrame(cols).sort_index()
+
+
+def daily_costs(px, h, borrow=0.0, exec_bps=0.0):
+    """Cost per $1 long for each session in h.index, as a return to subtract from the spread.
+
+    Constant notional ($1 long, $h short), rebalanced to equal weight every day. Turnover is what it
+    takes to restore the target weights after the day's moves, plus any change in the hedge ratio.
+    The first session also pays to open the whole book (1 + h). Exit is not charged.
+    Borrow is an annual fee on the short notional, charged daily (/252).
+    """
+    r = px.pct_change(fill_method=None).reindex(h.index)
+    tl = (r[LONG].abs() / len(LONG)).sum(axis=1)
+    held = h.shift(1).to_numpy()[:, None] / len(SHORT) * (1 + r[SHORT].to_numpy())
+    ts = pd.Series(np.nansum(np.abs(held - h.to_numpy()[:, None] / len(SHORT)), axis=1), index=h.index)
+    turnover = tl + ts
+    turnover.iloc[0] = 1 + h.iloc[0]
+    return turnover * exec_bps / 1e4 + borrow / 252 * h, turnover
 
 
 def ib_closes():

@@ -1,6 +1,6 @@
 {
   "name": "Built Beats Building",
-  "inception": "2026-11-16",
+  "inception": "2026-11-13",
   "benchmark": {
     "ticker": "QQQ",
     "ric": "QQQ.O",
@@ -68,5 +68,24 @@
     "method": "beta-neutral to QQQ",
     "lookback_sessions": 60,
     "rebalance": "first session of each month"
+  },
+  "published": "2026-11-16",
+  "costs": {
+    "note": "Assumptions, not quotes. Borrow is an annual fee on the short notional; execution is per dollar traded (commission + half-spread + impact).",
+    "borrow_base": 0.05,
+    "exec_bps_base": 10,
+    "borrow_grid": [
+      0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "exec_bps_grid": [
+      0,
+      5,
+      10,
+      20
+    ]
   }
 }

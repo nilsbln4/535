@@ -176,3 +176,8 @@ dl.method dt { font-weight: 700; color: var(--navy); }
   .chart, .chart.tall { height: 240px; }
   .callout p { font-size: 17px; }
 }
+
+/* cost grid */
+.scroll { overflow-x: auto; }
+table.grid td { white-space: nowrap; }
+table.grid td.base { outline: 2px solid var(--blue); outline-offset: -2px; background: var(--blue-lt) !important; }

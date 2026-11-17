@@ -13,7 +13,7 @@ from datetime import date
 import numpy as np
 import pandas as pd
 
-from common import (BENCH, CONFIG, LONG, SHORT, TICKER, ann_stats, basket_returns, hedge_ratios,
+from common import (BENCH, CONFIG, LONG, SHORT, TICKER, ann_stats, basket_returns, daily_costs, hedge_ratios,
                     lseg_closes, open_lseg, spread_returns, to_index, write_json)
 
 START_PRICES = "2025-01-02"
@@ -99,6 +99,20 @@ def main():
     lq = spread_returns(rl[win], rb[win], bl[win]).reindex(spr.index)
     rl, rs, rb, h = rl.loc[spr.index], rs.loc[spr.index], rb.loc[spr.index], h.loc[spr.index]
 
+    # Costs: base case for the headline net numbers, plus a grid of borrow fee x execution cost.
+    C = CONFIG["costs"]
+    cost_base, turnover = daily_costs(px, h, C["borrow_base"], C["exec_bps_base"])
+    net = spr - cost_base
+    grid_total, grid_drag = [], []
+    for bfee in C["borrow_grid"]:
+        rt, rd = [], []
+        for eb in C["exec_bps_grid"]:
+            c, _ = daily_costs(px, h, bfee, eb)
+            rt.append(float((1 + spr - c).prod() - 1))
+            rd.append(float(c.iloc[1:].mean() * 252))  # running cost per year, excluding the entry trade
+        grid_total.append(rt)
+        grid_drag.append(rd)
+
     s_idx = to_index(rs)
     peak = s_idx.idxmax()
     regimes = []
@@ -107,7 +121,7 @@ def main():
         tot = lambda r: float((1 + r.loc[sl]).prod() - 1)
         regimes.append({"name": name, "from": str(a.date()), "to": str(b.date()),
                         "long": tot(rl), "short": tot(rs), "spread": tot(spr), "qqq": tot(rb),
-                        "long_qqq": tot(lq)})
+                        "long_qqq": tot(lq), "spread_net": tot(net)})
 
     beta = float(np.cov(spr, rb)[0, 1] / rb.var())
     election = []
@@ -138,6 +152,12 @@ def main():
         "long_qqq": {"index": [round(x, 2) for x in to_index(lq)],
                      "stats": {**ann_stats(lq), "beta_qqq": float(np.cov(lq, rb)[0, 1] / rb.var())}},
         "credit": {"date": credit_date, "rows": credit},
+        "costs": {"borrow_base": C["borrow_base"], "exec_bps_base": C["exec_bps_base"],
+                  "borrow_grid": C["borrow_grid"], "exec_bps_grid": C["exec_bps_grid"],
+                  "net_total": grid_total, "drag_per_year": grid_drag,
+                  "turnover_per_year": float(turnover.iloc[1:].mean() * 252),
+                  "avg_hedge": float(h.mean()), "net_index": [round(x, 2) for x in to_index(net)],
+                  "net_stats": ann_stats(net)},
         "short_peak": str(peak.date()),
         "regimes": regimes,
         "election": election,
