@@ -1,17 +1,17 @@
 {
- "updated": "2026-11-17 16:18 UTC",
+ "updated": "2026-11-17 16:26 UTC",
  "source": "Yahoo Finance (public fallback)",
  "inception": "2026-11-13",
  "hedge_at_inception": 0.2522,
  "hedge_now": 0.2522,
  "beta_long_at_inception": 0.7241,
  "intraday": true,
- "as_of": "2026-11-17 11:18 ET",
+ "as_of": "2026-11-17 11:26 ET",
  "costs": {
   "borrow": 0.05,
   "exec_bps": 10,
-  "paid": 0.0013717923108448598,
-  "turnover": 1.2717064227993808
+  "paid": 0.001373918501271282,
+  "turnover": 1.273839136191917
  },
  "dates": [
   "2026-11-13",
@@ -21,49 +21,49 @@
  "spread": [
   100.0,
   99.98,
-  98.89
+  99.03
  ],
  "spread_net": [
   100.0,
   99.85,
-  98.76
+  98.89
  ],
  "long": [
   100.0,
   97.95,
-  96.47
+  96.43
  ],
  "short": [
   100.0,
   91.96,
-  90.39
+  89.75
  ],
  "qqq": [
   100.0,
   97.33,
-  96.17
+  96.03
  ],
  "long_qqq": [
   100.0,
   99.88,
-  99.23
+  99.29
  ],
  "stats": {
-  "total": -0.011054107982954475,
-  "vol": 0.11987942275235174,
-  "max_dd": -0.01086793068888059,
+  "total": -0.0097361983000962,
+  "vol": 0.10505359966629706,
+  "max_dd": -0.009548463333335255,
   "days": 2
  },
  "kill": [
   {
    "name": "Spread drawdown from its high since inception",
-   "value": -0.011099999999999999,
+   "value": -0.009700000000000042,
    "limit": -0.15,
    "tripped": false
   },
   {
    "name": "Short basket minus long basket since inception",
-   "value": -0.060799999999999986,
+   "value": -0.06680000000000007,
    "limit": 0.25,
    "tripped": false
   }
