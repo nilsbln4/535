@@ -1,12 +1,12 @@
 {
- "updated": "2026-11-18 03:46 UTC",
+ "updated": "2026-11-18 21:01 UTC",
  "source": "LSEG",
  "inception": "2026-11-13",
  "hedge_at_inception": 0.2522,
  "hedge_now": 0.2522,
  "beta_long_at_inception": 0.7241,
- "intraday": false,
- "as_of": "2026-11-17 22:46 ET",
+ "intraday": true,
+ "as_of": "2026-11-18 16:01 ET",
  "rebalance": {
   "frequency": "monthly",
   "drift_band": 0.3,
@@ -18,60 +18,67 @@
  "costs": {
   "borrow": 0.05,
   "exec_bps": 10,
-  "paid": 0.001348323900234529,
+  "paid": 0.0013939178394787243,
   "turnover": 1.2522
  },
  "dates": [
   "2026-11-13",
   "2026-11-16",
-  "2026-11-17"
+  "2026-11-17",
+  "2026-11-18"
  ],
  "spread": [
   100.0,
   99.98,
-  99.3
+  99.3,
+  100.04
  ],
  "spread_net": [
   100.0,
   99.85,
-  99.17
+  99.17,
+  99.9
  ],
  "long": [
   100.0,
   97.95,
-  96.87
+  96.87,
+  97.61
  ],
  "short": [
   100.0,
   91.96,
+  90.36,
   90.36
  ],
  "qqq": [
   100.0,
   97.33,
-  96.63
+  96.63,
+  null
  ],
  "long_qqq": [
   100.0,
   99.88,
-  99.31
+  99.31,
+  100.05
  ],
  "stats": {
-  "total": -0.0069663842831543255,
-  "vol": 0.07395642989235951,
+  "total": 0.00042130040896304344,
+  "vol": 0.1129496049243643,
   "max_dd": -0.006778115765531556,
-  "days": 2
+  "days": 3
  },
  "kill": [
   {
    "name": "Spread drawdown from its high since inception",
-   "value": -0.007000000000000006,
+   "value": 0.0,
    "limit": -0.15,
    "tripped": false
   },
   {
    "name": "Short basket minus long basket since inception",
-   "value": -0.06510000000000005,
+   "value": -0.0725,
    "limit": 0.25,
    "tripped": false
   }
