@@ -1,12 +1,12 @@
 {
- "updated": "2026-11-18 21:01 UTC",
+ "updated": "2026-11-18 22:20 UTC",
  "source": "LSEG",
  "inception": "2026-11-13",
  "hedge_at_inception": 0.2522,
  "hedge_now": 0.2522,
  "beta_long_at_inception": 0.7241,
- "intraday": true,
- "as_of": "2026-11-18 16:01 ET",
+ "intraday": false,
+ "as_of": "2026-11-18 17:20 ET",
  "rebalance": {
   "frequency": "monthly",
   "drift_band": 0.3,
@@ -31,41 +31,41 @@
   100.0,
   99.98,
   99.3,
-  100.04
+  100.8
  ],
  "spread_net": [
   100.0,
   99.85,
   99.17,
-  99.9
+  100.66
  ],
  "long": [
   100.0,
   97.95,
   96.87,
-  97.61
+  98.07
  ],
  "short": [
   100.0,
   91.96,
   90.36,
-  90.36
+  89.17
  ],
  "qqq": [
   100.0,
   97.33,
   96.63,
-  null
+  97.0
  ],
  "long_qqq": [
   100.0,
   99.88,
   99.31,
-  100.05
+  100.24
  ],
  "stats": {
-  "total": 0.00042130040896304344,
-  "vol": 0.1129496049243643,
+  "total": 0.008007294827363731,
+  "vol": 0.1779846489485388,
   "max_dd": -0.006778115765531556,
   "days": 3
  },
@@ -78,7 +78,7 @@
   },
   {
    "name": "Short basket minus long basket since inception",
-   "value": -0.0725,
+   "value": -0.08899999999999991,
    "limit": 0.25,
    "tripped": false
   }
