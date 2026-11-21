@@ -1,12 +1,12 @@
 {
- "updated": "2026-11-20 21:57 UTC",
+ "updated": "2026-11-21 03:20 UTC",
  "source": "Yahoo Finance (public fallback)",
  "inception": "2026-11-13",
  "hedge_at_inception": 0.2522,
  "hedge_now": 0.2522,
  "beta_long_at_inception": 0.7241,
  "intraday": false,
- "as_of": "2026-11-20 16:57 ET",
+ "as_of": "2026-11-20 22:20 ET",
  "rebalance": {
   "frequency": "monthly",
   "drift_band": 0.3,
