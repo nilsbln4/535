@@ -1,12 +1,12 @@
 {
- "updated": "2026-11-23 21:01 UTC",
- "source": "Yahoo Finance (public fallback)",
+ "updated": "2026-11-24 01:54 UTC",
+ "source": "LSEG",
  "inception": "2026-11-13",
  "hedge_at_inception": 0.2522,
  "hedge_now": 0.2522,
  "beta_long_at_inception": 0.7241,
- "intraday": true,
- "as_of": "2026-11-23 16:01 ET",
+ "intraday": false,
+ "as_of": "2026-11-23 20:54 ET",
  "rebalance": {
   "frequency": "monthly",
   "drift_band": 0.3,
@@ -18,7 +18,7 @@
  "costs": {
   "borrow": 0.05,
   "exec_bps": 10,
-  "paid": 0.0015161025692097393,
+  "paid": 0.0015161025711323938,
   "turnover": 1.2522
  },
  "dates": [
@@ -55,7 +55,7 @@
   98.07,
   95.42,
   91.38,
-  94.61
+  94.6
  ],
  "short": [
   100.0,
@@ -85,9 +85,9 @@
   97.68
  ],
  "stats": {
-  "total": -0.017673305370608627,
-  "vol": 0.15353460998930982,
-  "max_dd": -0.02547659666269597,
+  "total": -0.017706641850871563,
+  "vol": 0.15357091312718377,
+  "max_dd": -0.025509673203941596,
   "days": 6
  },
  "kill": [
@@ -99,7 +99,7 @@
   },
   {
    "name": "Short basket minus long basket since inception",
-   "value": -0.08989999999999995,
+   "value": -0.0897999999999999,
    "limit": 0.25,
    "tripped": false
   }
