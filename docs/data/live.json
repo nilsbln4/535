@@ -1,12 +1,12 @@
 {
- "updated": "2026-11-24 23:38 UTC",
+ "updated": "2026-11-25 04:58 UTC",
  "source": "LSEG",
  "inception": "2026-11-13",
  "hedge_at_inception": 0.2522,
  "hedge_now": 0.2522,
  "beta_long_at_inception": 0.7241,
  "intraday": false,
- "as_of": "2026-11-24 18:38 ET",
+ "as_of": "2026-11-24 23:58 ET",
  "rebalance": {
   "frequency": "monthly",
   "drift_band": 0.3,
