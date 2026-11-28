@@ -1,12 +1,12 @@
 {
- "updated": "2026-11-27 22:56 UTC",
- "source": "Yahoo Finance (public fallback)",
+ "updated": "2026-11-28 04:03 UTC",
+ "source": "LSEG",
  "inception": "2026-11-13",
  "hedge_at_inception": 0.2522,
  "hedge_now": 0.2522,
  "beta_long_at_inception": 0.7241,
  "intraday": false,
- "as_of": "2026-11-27 17:56 ET",
+ "as_of": "2026-11-27 23:03 ET",
  "rebalance": {
   "frequency": "monthly",
   "drift_band": 0.3,
@@ -18,7 +18,7 @@
  "costs": {
   "borrow": 0.05,
   "exec_bps": 10,
-  "paid": 0.0016360416309198383,
+  "paid": 0.0016360416324240968,
   "turnover": 1.2522
  },
  "dates": [
@@ -106,9 +106,9 @@
   96.81
  ],
  "stats": {
-  "total": -0.010039891704704429,
-  "vol": 0.16808584121214432,
-  "max_dd": -0.025509665697212247,
+  "total": -0.01003988569199854,
+  "vol": 0.1680857571662878,
+  "max_dd": -0.025509673203941596,
   "days": 9
  },
  "kill": [
